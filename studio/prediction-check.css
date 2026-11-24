@@ -1,23 +1,219 @@
-.prediction-group {margin:.65rem 0;border-left:3px solid #849f88;padding:.25rem .7rem;min-width:0;}
-.prediction-group>summary,.prediction-reason>summary {cursor:pointer;font-weight:600;color:#254d40;}
-.prediction-card {margin:.65rem 0;padding:.8rem .9rem;border:1px solid #bcccbc;background:#f8faf4;color:#172d25;border-radius:5px;min-width:0;text-align:left;}
-.prediction-card .prediction-prompt {margin:0 0 .6rem;line-height:1.45;}
-.prediction-card fieldset {min-width:0;margin:0 0 .55rem;padding:0;border:0;}
-.prediction-card .prediction-option {display:flex;align-items:baseline;gap:.5rem;margin:.25rem 0;font-weight:400;}
-.prediction-card .prediction-option input {width:auto;min-width:0;flex:0 0 auto;}
-.prediction-card .prediction-field {display:block;margin:.35rem 0 .55rem;font-size:.93rem;}
-.prediction-card .prediction-field input,.prediction-card .prediction-field textarea {box-sizing:border-box;display:block;margin:.22rem 0 0;padding:.38rem .5rem;font:inherit;color:#19382d;background:white;border:1px solid #829786;border-radius:4px;width:min(100%,26rem);max-width:100%;}
-.prediction-card .prediction-field textarea {width:min(100%,40rem);resize:vertical;}
-.prediction-card button {cursor:pointer;padding:.38rem .65rem;border:1px solid #829786;border-radius:4px;background:#f7faf6;color:#1b372c;font:inherit;}
-.prediction-card .prediction-status:not(:empty) {margin:.5rem 0;line-height:1.45;}
-.prediction-card .prediction-status:empty {display:none;}
-.prediction-card .prediction-reason {margin:.55rem 0 0;padding:.4rem 0 0;border-top:1px solid #c7d3c5;}
-.prediction-card .prediction-reason p {margin:.3rem 0;}
-.prediction-card .prediction-self:not([hidden]) {display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0 0;}
-.prediction-self[hidden] {display:none;}
-.prediction-card :focus-visible,.prediction-group>summary:focus-visible {outline:3px solid #52775d;outline-offset:2px;}
-.prediction-sr {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
-.ink-row-guide {margin:.6rem 0 1rem;}
-.worker-turns {border-collapse:collapse;font-variant-numeric:tabular-nums;margin:.65rem 0;}
-.worker-turns th,.worker-turns td {padding:.23rem .4rem;border:1px solid #c9d4c8;text-align:center;}
-.worker-turns th {text-align:left;}
+/* Prediction & quick-check cards */
+.prediction-group {
+  margin: 0.9rem 0 1rem;
+  border: 1px solid #c4d5c3;
+  border-radius: 8px;
+  background: #f6f9f4;
+  padding: 0.65rem 0.95rem;
+  min-width: 0;
+}
+
+.prediction-group > summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 0.92rem;
+  color: #1e5b45;
+  padding: 0.15rem 0;
+}
+
+.prediction-card {
+  margin: 0.7rem 0;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid #cdd8cb;
+  background: #ffffff;
+  color: #15241f;
+  border-radius: 7px;
+  min-width: 0;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(16, 38, 32, 0.04);
+}
+
+.prediction-card:last-child {
+  margin-bottom: 0.25rem;
+}
+
+.prediction-card .prediction-prompt {
+  margin: 0 0 0.65rem;
+  line-height: 1.5;
+  font-size: 0.97rem;
+}
+
+.prediction-card fieldset {
+  min-width: 0;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  border: 0;
+}
+
+.prediction-card .prediction-option {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 0.35rem 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 5px;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.prediction-card .prediction-option:hover {
+  background: #f1f6ee;
+}
+
+.prediction-card .prediction-option input {
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+  accent-color: #1e5b45;
+}
+
+.prediction-card .prediction-field {
+  display: block;
+  margin: 0.4rem 0 0.65rem;
+  font-size: 0.9rem;
+  color: #3a4f46;
+}
+
+.prediction-card .prediction-field input,
+.prediction-card .prediction-field textarea,
+.prediction-card .prediction-field select {
+  box-sizing: border-box;
+  display: block;
+  margin: 0.28rem 0 0;
+  padding: 0.48rem 0.65rem;
+  font: inherit;
+  color: #15241f;
+  background: #ffffff;
+  border: 1px solid #9eb19f;
+  border-radius: 5px;
+  width: min(100%, 26rem);
+  max-width: 100%;
+}
+
+.prediction-card .prediction-field textarea {
+  width: min(100%, 42rem);
+  resize: vertical;
+}
+
+.prediction-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.prediction-card button {
+  cursor: pointer;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid #9eb19f;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #15241f;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.prediction-card button[type="submit"] {
+  background: #1e5b45;
+  border-color: #1e5b45;
+  color: #ffffff;
+}
+
+.prediction-card button[type="submit"]:hover {
+  background: #154534;
+  border-color: #154534;
+}
+
+.prediction-card button:hover {
+  background: #edf3ea;
+  border-color: #1e5b45;
+}
+
+.prediction-card .prediction-status:not(:empty) {
+  margin: 0.65rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 5px;
+  background: #edf3ea;
+  color: #1c4734;
+  font-size: 0.91rem;
+  font-weight: 600;
+  line-height: 1.48;
+}
+
+.prediction-card .prediction-status.is-ok {
+  background: #e2f1df;
+  color: #164924;
+}
+
+.prediction-card .prediction-status.is-wrong {
+  background: #faece3;
+  color: #7c3515;
+}
+
+.prediction-card .prediction-status:empty {
+  display: none;
+}
+
+.prediction-card .prediction-reason {
+  margin: 0.7rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 5px;
+  background: #f5f8f2;
+  border-left: 3px solid #4f8564;
+}
+
+.prediction-card .prediction-reason > summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 0.89rem;
+  color: #1e5b45;
+}
+
+.prediction-card .prediction-reason p {
+  margin: 0.4rem 0 0;
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.prediction-card .prediction-self:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.65rem 0 0;
+}
+
+.prediction-self[hidden] {
+  display: none;
+}
+
+.prediction-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ink-row-guide {
+  margin: 0.6rem 0 1rem;
+}
+
+.worker-turns {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin: 0.7rem 0;
+  background: #ffffff;
+}
+
+.worker-turns th, .worker-turns td {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #c9d4c8;
+  text-align: center;
+}
+
+.worker-turns th {
+  text-align: left;
+  background: #edf2e9;
+}

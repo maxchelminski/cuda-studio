@@ -1,14 +1,34 @@
 const LabJournal = (()=>{
 "use strict";
-const reviewDays=[1,3,7,21];
+const reviewDays=[1,3,7,21,45];
+function startOfDay(ts, addDays=0){
+ const d=new Date(ts);
+ d.setDate(d.getDate()+addDays);
+ d.setHours(0,0,0,0);
+ return d.getTime();
+}
 function reviewDate(r){
- if(!r.done||r.review>=reviewDays.length)return null;
+ if(!r.done)return null;
+ if(Number.isFinite(r.nextReview)&&r.nextReview>0)return r.nextReview;
+ if(r.review>=reviewDays.length)return null;
  const hasReview=r.review>0 && r.lastReview;
- const date=new Date(hasReview?r.lastReview:r.done);
+ const base=hasReview?r.lastReview:r.done;
  const interval=reviewDays[r.review]-(hasReview?reviewDays[r.review-1]:0);
- date.setDate(date.getDate()+interval);
- date.setHours(0,0,0,0);
- return date.getTime();
+ return startOfDay(base, Math.max(1, interval));
+}
+function scheduleNext(r, rating, now=Date.now()){
+ const stage=r.review||0;
+ if(rating==="again"){
+  return {review:Math.max(0, stage-1), lastReview:now, nextReview:startOfDay(now, 1), days:1};
+ }
+ if(rating==="easy"){
+  const days=stage<=0?5:stage===1?12:stage===2?25:45;
+  return {review:Math.min(reviewDays.length, stage+2), lastReview:now, nextReview:startOfDay(now, days), days};
+ }
+ // "good"
+ const nextStage=Math.min(reviewDays.length, stage+1);
+ const days=stage===0?3:stage===1?7:stage===2?21:45;
+ return {review:nextStage, lastReview:now, nextReview:startOfDay(now, days), days};
 }
 function mergeNote(a,b){
  if(!a)return b;if(!b)return a;
@@ -59,8 +79,9 @@ function merge(state,incoming){
   if(!old){state.records[id]=v;continue}
   const review=Math.max(old.review,v.review);
   const lastReview=Math.max(old.review===review?old.lastReview||0:0,v.review===review?v.lastReview||0:0);
+  const nextReview=Math.max(old.nextReview||0,v.nextReview||0);
   state.records[id]={note:mergeNote(old.note,v.note),done:old.done&&v.done?Math.min(old.done,v.done):old.done||v.done,
-   choice:old.choice??v.choice,review,lastReview,steps:[...new Set([...(old.steps||[]),...(v.steps||[])])].sort((a,b)=>a-b)};
+   choice:old.choice??v.choice,review,lastReview,nextReview,steps:[...new Set([...(old.steps||[]),...(v.steps||[])])].sort((a,b)=>a-b)};
   if(old.drills||v.drills){
    const drills=LessonPractice.saved(id,old.drills,v.drills);
    if(Object.keys(drills).length)state.records[id].drills=drills;
@@ -184,5 +205,5 @@ function readBench(text,date){
  if(rows.length!==expected.length||expected.some(x=>!modes.has(x)))throw Error("The benchmark is incomplete. Import the CSV after every variant finishes successfully.");
  return result;
 }
-return {reviewDate,merge,addRuns,decodeFile,readBench};
+return {reviewDate,scheduleNext,merge,addRuns,decodeFile,readBench};
 })();
