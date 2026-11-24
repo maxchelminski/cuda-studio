@@ -51,15 +51,17 @@ foreach ($choice in $choices) {
         if ($PSCmdlet.ShouldProcess($file,"Open in $choice ($program)")) {
             $argument = '"{0}"' -f $file
             if ($choice -eq 'VSCode') {
-                # Electron's Windows GUI can attach itself to the terminal that launched it.
-                $start = New-Object System.Diagnostics.ProcessStartInfo
-                $start.FileName = $program
-                $start.Arguments = $argument
-                $start.UseShellExecute = $false
-                $start.CreateNoWindow = $true
-                $start.EnvironmentVariables['ELECTRON_NO_ATTACH_CONSOLE'] = '1'
-                $start.EnvironmentVariables.Remove('ELECTRON_RUN_AS_NODE')
-                [System.Diagnostics.Process]::Start($start).Dispose()
+                # Detach Electron stdout/stderr to NUL so VS Code logs never pollute Course PowerShell.
+                $prevAttach = $env:ELECTRON_NO_ATTACH_CONSOLE
+                $prevNode = $env:ELECTRON_RUN_AS_NODE
+                try {
+                    $env:ELECTRON_NO_ATTACH_CONSOLE = '1'
+                    Remove-Item Env:\ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+                    Start-Process -FilePath $program -ArgumentList $argument -RedirectStandardOutput 'NUL' -RedirectStandardError 'NUL'
+                } finally {
+                    if ($null -eq $prevAttach) { Remove-Item Env:\ELECTRON_NO_ATTACH_CONSOLE -ErrorAction SilentlyContinue } else { $env:ELECTRON_NO_ATTACH_CONSOLE = $prevAttach }
+                    if ($null -ne $prevNode) { $env:ELECTRON_RUN_AS_NODE = $prevNode }
+                }
             } else {
                 Start-Process -FilePath $program -ArgumentList $argument
             }

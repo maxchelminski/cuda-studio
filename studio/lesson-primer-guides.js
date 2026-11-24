@@ -6,411 +6,495 @@
 
   window.PRIMER_GUIDES = {
     "0/0": {
-      workbench: "Start with the FPS exercise in this lesson. If its first run prints TRY or PASS, your C++ compiler is working. Use Setup only if the runner reports a missing compiler.",
-      intro: "A game draws a picture, then draws the next one. Each picture is a frame. If you know how long one frame takes, you can predict how many the game could draw in a second. Today you’ll teach a small C++ program to do that conversion and check its answer.",
-      orientation: "Ordinary division is all the background you need today. In the readings, look for `main`, where the program starts. A function call asks another part of the program to do a job.",
+      workbench: "Start by running Exercise 1. If PowerShell prints TRY or PASS, your C++ compiler is already working — you only need Setup if it reports a missing compiler.",
+      intro: "Every real-time game or renderer draws one frame after another. If you know how many milliseconds a single frame takes, you can immediately compute the frame rate in frames per second (FPS). Today you'll edit, compile, and test your first C++ function.",
+      orientation: "Basic division is the only math you need today. In the quick reading, pay attention to `main()` (where every C++ program starts) and how calling a function sends an input in and gets a return value back.",
       sections: [
         {
-          title: "How many frames fit in a second?",
+          title: "How frame time converts to FPS",
           body: [
-            "Suppose every frame takes 10 milliseconds (ms). In the first 10 ms the game draws one frame. In 100 ms it draws ten. A second contains 1,000 ms, so in a second it draws 100 frames. We call that 100 frames per second, or FPS.",
-            "Try the relationship in reverse. At 100 FPS, each frame has 1,000 ÷ 100 = 10 ms. If drawing a frame takes twice as long, only half as many fit in a second."
+            "Suppose each frame takes 10 milliseconds (ms). One second has 1,000 ms, so in one second the renderer can finish 1,000 ÷ 10 = 100 frames — that's 100 FPS.",
+            "It works in reverse too: at 100 FPS, each frame has a time budget of 1,000 ÷ 100 = 10 ms. If a frame takes twice as long (20 ms), the frame rate drops in half (50 FPS)."
           ]
         },
         {
-          title: "Read a working C++ function",
+          title: "Anatomy of a small C++ function",
           body: [
-            "A function is a named calculation. This one takes a time in seconds and returns the same time in milliseconds. It multiplies the input by 1,000.",
-            "Read `seconds_to_ms(0.25f)` as “convert a quarter of a second to milliseconds.” The result is 250. The `f` marks a number written as a float."
+            "A function is a reusable named calculation. This one takes a duration in seconds and returns the same duration in milliseconds by multiplying by 1,000.",
+            "Calling `seconds_to_ms(0.25f)` returns `250.0f`. The trailing `f` tells C++ to store the constant as a 32-bit `float`."
           ],
           terms: [
-            {term:"float", meaning:"The type of the answer. A float can represent numbers with a fractional part."},
-            {term:"seconds_to_ms", meaning:"The name you use when you call this calculation."},
-            {term:"float seconds", meaning:"The input. Inside the function, the name `seconds` stands for the value you supplied."},
-            {term:"return seconds * 1000.0f;", meaning:"Give back the input multiplied by 1,000. The semicolon ends the instruction, and the surrounding braces enclose the function’s instructions."}
+            {term: "float", meaning: "The return type: a number that can hold a fractional part (like 12.5)."},
+            {term: "seconds_to_ms", meaning: "The function's name — what you type when you call it."},
+            {term: "float seconds", meaning: "The input parameter. Inside the function, `seconds` holds whatever value the caller passed in."},
+            {term: "return seconds * 1000.0f;", meaning: "Sends the result back to the caller. Semicolons end statements, and curly braces `{ }` enclose the function body."}
           ],
           language: "C++",
           code: "float seconds_to_ms(float seconds) {\n    return seconds * 1000.0f;\n}"
         },
         {
-          title: "Follow a number from a function into a test",
-          language: "C++ · example inside main",
+          title: "Tracing a value from a function into a test",
+          language: "C++ · example inside main()",
           code: "float elapsed_ms = seconds_to_ms(0.5f);\nfloat frame_ms = elapsed_ms / 8.0f;\nbool passed = check(\"eight equal frames\", frame_ms, 62.5f);",
           body: [
-            "Suppose eight frames each took the same time and together took half a second. Start on the right of the first `=`. The call returns 500. The line creates a variable named `elapsed_ms` and stores that value in it. On the next line, `/` means divide. Dividing 500 ms by eight frames gives 62.5 ms per frame, which becomes the value of `frame_ms`.",
-            "The last line uses the course’s `check` function. The quoted text labels the test, `frame_ms` supplies the observed value, and `62.5f` supplies the expected value we worked out on paper. The check prints `PASS eight equal frames | got 62.5, expected 62.5`. It also gives back `true`, which is stored in `passed`. Its type, `bool`, holds either `true` or `false`."
+            "Suppose 8 equal frames took half a second total. Look at the first line from right to left: `seconds_to_ms(0.5f)` returns `500.0f`, which is stored in the new variable `elapsed_ms`. On the next line, dividing by `8.0f` gives `62.5f` ms per frame.",
+            "The third line calls this course's `check` helper with three arguments: a text label, the value your code actually computed (`frame_ms`), and the expected answer (`62.5f`). When they match, it prints `PASS eight equal frames | got 62.5, expected 62.5` and returns `true` (stored in the `bool` variable `passed`)."
           ],
           rehearsal: {
-            prompt: "On paper, change only the first call above to `seconds_to_ms(1.0f)`. Keep eight frames and the expected value 62.5. Predict the test label (PASS or TRY), the two numbers it will print, and the value stored in `passed`. Could the program print that test line if a missing semicolon stopped this build?",
-            hint: "Begin with the milliseconds in one second. Carry that number into the division. The expected value is written directly into the last line.",
-            answer: "The check prints `TRY  eight equal frames | got 125, expected 62.5` and returns `false`. A TRY line means this build reached a running test. If a missing semicolon stops the build, the course reports the compiler’s error and skips the run."
+            prompt: "Trace what happens if you change only the first line to `seconds_to_ms(1.0f)`, leaving the division by 8 and expected value `62.5f` unchanged. Will `check` print PASS or TRY, what two numbers (`got` and `expected`) will it print, and what value goes into `passed`? Also: would that test line print at all if a missing semicolon broke compilation?",
+            hint: "Start with 1.0 second = 1,000 ms, divide by 8, and compare with the hard-coded expected value 62.5.",
+            answer: "It prints `TRY  eight equal frames | got 125, expected 62.5` and stores `false` in `passed`. A `TRY` line means the program compiled and ran, but got the wrong number. A missing semicolon stops the compiler before any test can run."
           }
         },
         {
-          title: "Where you’ll read, type and edit",
+          title: "Your workflow for every C++ session",
           body: [
-            "Keep this browser page open for the instructions and your notes.",
-            "You’ll type commands in a PowerShell window and edit C++ text in VS Code or Notepad++. The text file ends in `.cpp`. A compiler translates that file into a program Windows can run.",
-            "Select the Guided exercise tab, or the Start the guided exercise button below. Its first step opens PowerShell and gives you the exact command that compiles and runs your file."
+            "Keep this browser tab open for the lesson and notes. You'll run build/test commands in **Course PowerShell** and edit `.cpp` source files in **VS Code** (or Notepad++ if you prefer).",
+            "Click **Start the Guided Exercise** below to open Course PowerShell and run your first starter program."
           ]
         }
       ],
       practice: [
         {
-          title: "Predict two answers and run the supplied program",
-          body: ["Assume each frame takes the same time. In your lesson notes or on paper, write your predicted FPS for a 20 ms frame and an 8 ms frame. Include the division you used."],
+          title: "Predict two FPS values and run the starter",
+          body: ["Before running any code, calculate on paper (or in your notes) the FPS for a 20 ms frame and for an 8 ms frame."],
           actions: [
             {
-              title: "Open the course terminal",
-              body: ["Press the Windows key and E together to open File Explorer. Click its address bar, type `G:\\CUDA-Studio` and press Enter. Double-click `Course PowerShell.cmd`. If Windows hides extensions, its name is `Course PowerShell` and its type is Windows Command Script.", "A terminal window opens. After it finishes loading, look for a line like `PS G:\\CUDA-Studio>` with a cursor. This is the prompt. It tells you where commands will run."]
+              title: "Open Course PowerShell",
+              body: ["Press `Win + E` to open File Explorer, go to `G:\\CUDA-Studio`, and double-click `Course PowerShell.cmd` (if Windows hides file extensions, it appears as `Course PowerShell`).", "Wait until you see a prompt like `PS G:\\CUDA-Studio>` — that's where you'll paste commands."]
             },
             {
-              title: "Run the first exercise",
-              body: ["Copy the whole line below. Click beside the prompt in the PowerShell window, paste the line (Ctrl+V, or right-click), and press Enter. The final `1` selects the first exercise."],
+              title: "Compile and run Exercise 1",
+              body: ["Copy the command below, paste it into Course PowerShell, and press Enter. The `1` at the end selects Exercise 1."],
               command: run(1),
               expected: "One quarter second is 250 milliseconds.\nTRY  20 ms frame | got 20, expected 50\nTRY  8 ms frame | got 8, expected 125"
             },
             {
-              title: "Read one check aloud",
-              body: ["`got` is the number the function actually returned. `expected` is the answer built into the test. The first check says the program returned 20 FPS for a 20 ms frame. Compare both expected numbers with the predictions you wrote. On the supplied first run, both lines begin with `TRY` because the function still returns its input."]
+              title: "Read the output",
+              body: ["`got` is what the starter's `fps()` function actually returned, and `expected` is the right answer. Both lines say `TRY` right now because the starter placeholder simply returns `milliseconds` unchanged instead of converting it to FPS."]
             }
           ]
         },
         {
-          title: "Make the function calculate FPS",
+          title: "Fix fps() and add a 25 ms test",
           body: [],
           actions: [
             {
-              title: "Open the source file in your editor",
-              body: ["Paste this line at the same PowerShell prompt and press Enter. The course opens `01_frames.cpp` in VS Code by default. For Notepad++, append `-Editor Notepad++` to the command. Look for the comment beginning `// STUDENT` inside `fps`. Text after `//` is a note for the reader."],
+              title: "Open 01_frames.cpp in your editor",
+              body: ["Run this command in Course PowerShell to open `01_frames.cpp` in VS Code (add `-Editor Notepad++` if you want Notepad++). Find the `// STUDENT` comment inside `fps()`."],
               command: edit("01_frames.cpp")
             },
             {
-              title: "Change what the function returns",
-              body: ["The line `return milliseconds;` explains both `TRY` results. Replace only the expression between `return` and the semicolon. Use `seconds_to_ms(1.0f)` for the milliseconds available in one second, the C++ division sign `/`, and the input named `milliseconds`. Press Ctrl+S in your editor.", "Switch to PowerShell. Paste the command below again and press Enter. Both original checks should now begin with `PASS`. If one says `TRY`, compare `got` with `expected` and check the order of the division."],
+              title: "Implement the FPS formula",
+              body: ["Replace `return milliseconds;` so `fps()` divides the number of milliseconds in 1 second (`seconds_to_ms(1.0f)`) by `milliseconds`. Save with `Ctrl+S`.", "Back in Course PowerShell, rerun Exercise 1. Both original checks should now print `PASS`."],
               command: run(1)
             },
             {
-              title: "Give the program a new question",
-              body: ["In your editor, find `bool first = check(…);` inside `main`. The program begins its work in `main`. Read the three pieces inside `check(…)` from left to right. First comes a label in quotes, then the function call being tested, then the answer it should give.", "Change the label to `25 ms frame` and change the input in `fps(20.0f)` to `25.0f`. Work out the new expected FPS yourself, then replace `50.0f` with your answer written as a float. Save and run the same build command. Keep the passing 25 ms result for your notes."]
+              title: "Update the first test to 25 ms",
+              body: ["In `main()`, find `bool first = check(...);`. Change the label from `\"20 ms frame\"` to `\"25 ms frame\"`, change `fps(20.0f)` to `fps(25.0f)`, and replace `50.0f` with the FPS you calculated for 25 ms (written as a float, e.g., `40.0f`).", "Save and rerun. Copy the passing 25 ms output line into your notes under Check & Save."]
             }
           ]
         },
         {
-          title: "Recognize a compiler error and recover",
-          body: ["Inside `fps`, remove the semicolon at the end of your `return` line. Save and run the command below. The compiler stops before the FPS tests. Its error message tells you what it was trying to read."],
+          title: "Trigger a compiler error and fix it",
+          body: ["Delete the semicolon at the end of your `return` line inside `fps()`, save, and rerun Exercise 1. Because the syntax is broken, the compiler stops before running any tests."],
           command: run(1),
           actions: [
             {
-              title: "Find the line worth keeping",
-              body: ["In PowerShell, look for the line containing both `01_frames.cpp` and `error`. GCC and Microsoft’s compiler can describe the same mistake in different ways. Here is one example from each."],
-              language: "GCC (top) and Microsoft C++ (bottom)",
+              title: "Read the compiler diagnostic",
+              body: ["Look for the line in PowerShell containing both `01_frames.cpp` and `error`. Depending on which compiler runs, it looks like one of these:"],
+              language: "GCC (top) or Microsoft C++ (bottom)",
               code: "01_frames.cpp:10:46: error: expected ';' before '}' token\n01_frames.cpp(11,1): error C2143: syntax error: missing ';' before '}'"
             },
             {
-              title: "Connect the message to your edit",
-              body: ["Read `10:46` as line 10, column 46. Read `(11,1)` as line 11, column 1. GCC can mark the end of the return expression. Microsoft’s compiler can mark the closing brace on the next line. Both noticed an unfinished statement. Your line numbers may change as you edit.", "Copy your own error line into the lesson notes under Check & save. A full file path is fine. A single line is enough, and you can keep the source excerpt, caret and your own explanation with it. Select Check my compiler message to check what you saved."]
+              title: "Save and verify your diagnostic",
+              body: ["`10:46` means line 10, column 46; `(11,1)` means line 11, column 1. Compilers often report a missing semicolon on the *next* line (the closing `}`), because that's where they finally realize the previous statement never ended.", "Copy your actual error line into your notes on the Check & Save tab and use the built-in diagnostic checker there to verify you captured the file, line, and message."]
             },
-            {title: "Restore a working program", body: ["Put the semicolon back at the end of the return line inside `fps`. Save and run the same build command again. Both the 25 ms and 8 ms tests should pass. Keep their output with the diagnostic and add one sentence explaining what running an older executable would tell you about your latest edit."]}
+            {
+              title: "Put the semicolon back and verify",
+              body: ["Restore the semicolon, save, and rerun Exercise 1 so both the 25 ms and 8 ms tests print `PASS`. In your notes, write one sentence explaining why running an older `.exe` after a failed compile would mislead you."]
+            }
           ]
         }
       ]
     },
+
     "0/1": {
-      workbench: "The source link lets you read the same file that the editor command opens. For the three new input lists, use the extra-checks command under “Try it on new inputs.”",
-      intro: "A short pause can spoil an otherwise smooth sequence of frames. Given a list of frame times, count how often a game spends longer than its budget. This is the first algorithm in the course that must remember something as it moves through its input.",
-      orientation: "Last time, one duration went into `fps` and one number came back. Today a function receives a whole list. As you read, follow the first two items by hand before you edit anything.",
+      workbench: "Use the source link to read 02_loop.cpp in the browser, and run the Edit command in PowerShell to modify it. Use the extra-checks command under Try it on new inputs once your main tests pass.",
+      intro: "Average FPS can look smooth even while a game stutters. Given a list of frame times, you'll write a loop that counts how many frames went over a time budget — your first algorithm that keeps state as it scans through data.",
+      orientation: "In Session 1, `fps()` took one number and returned one number. Here your function receives a whole `std::vector<int>` of frame times. Trace the first two items by hand before editing.",
       sections: [
         {
-          title: "A trace is an ordered list of measurements",
+          title: "Frame traces and std::vector",
           body: [
-            "A frame-time trace records one time for each successive frame. With a 16 ms budget, the trace 12, 20, 16 has one late frame. The 20 ms frame exceeded its budget. The 16 ms frame used exactly its allowance.",
-            "In C++, `std::vector<int>` holds a sequence of whole numbers. A function parameter written `const std::vector<int>& samples` lets the function read the existing vector. The `&` avoids copying it and `const` prevents edits through this name."
+            "A frame trace is simply a list of frame durations in order. With a 16 ms budget, the trace `[12, 20, 16]` has **1** late frame: 20 ms is strictly over budget, while 16 ms is right on time.",
+            "In C++, `std::vector<int>` holds a list of integers. Writing the parameter as `const std::vector<int>& samples` lets the function read the caller's list directly without copying it (`&`) and prevents accidental edits (`const`)."
           ]
         },
         {
-          title: "Follow one accumulator through a loop",
+          title: "Keeping a running total in a loop",
           body: [
-            "The example adds frame durations. `int sum = 0` gives the running total a starting value. The line starting with `for` means “for each sample in samples.” On each pass, `sample` names the next number and `sum += sample` adds it to the total.",
-            "For 12, 20, 16 the running total goes from 0 to 12 to 32 to 48. The variable survives each pass because it was declared before the loop. Your exercise uses this pattern to count late frames. Consider when that counter should increase and by how much."
+            "This loop sums all frame times. `int sum = 0;` creates a variable *outside* the loop so its value carries over from one iteration to the next. `for (int sample : samples)` visits each element in order, and `sum += sample;` adds it to `sum`.",
+            "On `[12, 20, 16]`, `sum` goes `0 → 12 → 32 → 48`. For your exercise, you'll use the same pattern — except instead of summing durations, you'll count how many frames exceed the budget."
           ],
           language: "C++",
           code: "int sum = 0;\nfor (int sample : samples) {\n    sum += sample;\n}\nreturn sum;"
         },
         {
-          title: "Let a comparison decide whether to update a value",
-          language: "C++ · find the longest frame",
+          title: "Using an if statement inside a loop",
+          language: "C++ · finding the longest frame",
           code: "int longest(const std::vector<int>& samples) {\n    int best = 0;\n    for (int sample : samples) {\n        if (sample > best) {\n            best = sample;\n        }\n    }\n    return best;\n}",
           body: [
-            "Assume the frame times are whole numbers at least zero. The opening line gives this function a name, `longest`. Each time it is called, `best` starts at zero. Inside the loop, `sample > best` asks a yes-or-no question. When the answer is yes, `best = sample` replaces the stored value. When it is no, execution skips that assignment and moves on to the next sample.",
-            "Trace [6, 3, 11] ms with a pencil. Six beats zero, so write 6. Three fails the comparison, so keep 6. Eleven beats six, so write 11. The closing brace of the loop comes before `return best;`, which is why all three frames can contribute before the function gives back 11. With an empty list, this version returns its starting value of zero."
+            "Here `longest()` tracks the largest frame time seen so far (assuming non-negative frame times). On each pass, `if (sample > best)` checks whether the current frame beats `best`; if so, it updates `best`.",
+            "Tracing `[6, 3, 11]`: 6 > 0 (update to 6), 3 > 6 is false (stay 6), 11 > 6 (update to 11), and after the loop finishes it returns `11`. On an empty list `{}`, the loop body never runs and it returns `0`."
           ],
           rehearsal: {
-            prompt: "Trace `longest` on [4, 4, 9, 6]. Write the value of `best` after each frame and put a tick each time `best = sample` runs. Now change `>` to `>=`, meaning “greater than or equal to,” and repeat. Can someone who sees only the final answer tell which comparison you used?",
-            hint: "Pay attention to the second 4. Writing 4 into a variable that already holds 4 still executes an assignment.",
-            answer: "Both traces end each pass with 4, 4, 9, 9. With `>`, the assignment runs on the first and third passes. With `>=`, it runs on the first three passes. Both return 9. In the lab, the action inside the condition adds one to a counter, so a tie can change the returned answer."
+            prompt: "Trace `longest` on `[4, 4, 9, 6]`. Write down `best` after each of the 4 passes and note which passes run `best = sample;`. Now repeat with `>=` instead of `>`. Does the returned answer change?",
+            hint: "Watch pass 2 (the second 4). With `>=`, `4 >= 4` is true so the assignment runs again, even though `best` already holds 4.",
+            answer: "In both versions, `best` after each pass is `4, 4, 9, 9` and the return value is `9`. With `>` the assignment runs on passes 1 and 3; with `>=` it runs on passes 1, 2, and 3. In your counting exercise (`++count`), a tie *does* change the final count!"
           }
         },
         {
-          title: "Read one test from the inside out",
-          language: "C++ · from main in the starter",
-          code: "bool b = check(\"exact tie\", count_over({16}, 16), 0);",
+          title: "Understanding the three starter tests in main()",
+          language: "C++ · starter checks in 02_loop.cpp",
+          code: "bool a = check(\"strictly over 16\", count_over(frames, 16), 2);\nbool b = check(\"exact tie\", count_over({16}, 16), 0);\nbool c = check(\"empty trace\", count_over({}, 16), 0);",
           body: [
-            "Start inside `count_over({16}, 16)`. The braces supply a fresh list with one frame lasting 16 ms. The second 16 sets this call’s budget. Is that one frame strictly over 16 ms? No, so the expected count is 0.",
-            "Now read the surrounding `check`. The quoted words give the test a name. The function call supplies the actual count, and the final 0 supplies the expected count. When the two numbers agree, `check` prints PASS and returns `true`. That yes-or-no result goes into `b`.",
-            "The starter already includes three checks. Only `a` passes the named list `frames` (10, 16, 25, 17). The 25 and the 17 qualify there. Check `b` supplies its own one-frame list to isolate equality. Check `c` supplies `{}`, an empty list, to see what happens when the loop gets zero turns.",
-            "The last line, `return a && b && c ? 0 : 1;`, reads “if a, b and c all passed, report success (0) to PowerShell. Otherwise report failure (1).”"
+            "Look at why `main()` already has three separate calls to `count_over`: check `a` tests a mixed list `frames = {10, 16, 25, 17}` where 25 and 17 are strictly over 16 (expected: 2); check `b` passes a tiny 1-element list `{16}` specifically to make sure an exact tie returns 0; and check `c` passes an empty list `{}`.",
+            "Finally, `return a && b && c ? 0 : 1;` returns exit code `0` (success) to PowerShell only if every single check passed."
           ]
         }
       ],
       practice: [
         {
-          title: "Trace the supplied total",
-          body: ["Open Course PowerShell from `G:\\CUDA-Studio`. Write the running total after each value of `{10, 16, 25, 17}` on paper. What would the function return for an empty list? Now run exercise 2 and compare its total with your last number."],
+          title: "Trace the starter's total() and run Exercise 2",
+          body: ["Before running PowerShell, write down the running total of `{10, 16, 25, 17}` after each element, and predict what `total({})` returns. Then run Exercise 2."],
           command: run(2),
           expected: "Total frame time: 68 ms\nTRY  strictly over 16 | got 0, expected 2\nPASS exact tie | got 0, expected 0\nPASS empty trace | got 0, expected 0"
         },
         {
-          title: "Count only frames over budget",
-          body: ["Open your file using the command below. Locate `count_over` and replace its placeholder `return 0;`. Keep a whole-number count outside the loop. Inside, use `if (condition) { … }` to decide whether the current sample exceeds the budget. `++count;` adds one. Return the count after the loop."],
+          title: "Implement count_over()",
+          body: ["Open `02_loop.cpp` using the command below. Inside `count_over`, replace `return 0;` with a loop that initializes an integer counter to 0 before the loop, increments it (`++count;`) whenever `sample > budget`, and returns it after the loop."],
           command: edit("02_loop.cpp"),
-          actions: [{title:"Test the code you saved",body:["Press Ctrl+S. Switch back to PowerShell and rerun exercise 2. Look for three PASS lines. The tie and the empty trace also passed before your edit. Which input actually exposed the placeholder?"],command:run(2)}]
+          actions: [{
+            title: "Save and rerun Exercise 2",
+            body: ["Save with `Ctrl+S` and rerun in PowerShell. All three checks should now say `PASS`. Notice that `exact tie` and `empty trace` already said `PASS` on the broken placeholder `return 0;` — only `strictly over 16` caught that the function wasn't implemented yet!"],
+            command: run(2)
+          }]
         },
         {
-          title: "Make a test distinguish two similar rules",
-          body: ["Design a case that makes a boundary mistake visible twice. Before the final `return` in `main`, copy the exact-tie check into a fourth variable named `d`. Give it a descriptive label and call `count_over({16, 17, 16, 18}, 16)`. Underline the qualifying frames and use their count as the expected value. Add `&& d` to the return condition so this test also affects the exit code.", "Save and run. Then change only `>` in your function to `>=`. Keep the expected values fixed. Predict which rows will say TRY. The one tie in `b` isolates the mistake. The two ties in `d` let you see exactly how much it changes a mixed result. Restore `>`, save and rerun. Record an everyday threshold whose meaning changes at equality."],
+          title: "Add a multi-tie test and test > vs. >=",
+          body: [
+            "Now add a fourth test `bool d` right after `bool c` in `main()` to test a trace with *two* exact ties: `count_over({16, 17, 16, 18}, 16)`. Work out the strict expected count yourself, give the check a clear label, and update the final return line to `return a && b && c && d ? 0 : 1;`.",
+            "Save and run to verify all four checks pass. Then temporarily change `>` to `>=` inside `count_over()` (leaving the expected values unchanged) and rerun. Predict which checks will turn into `TRY` — you'll see both `exact tie` (`b`) and your new two-tie check (`d`) catch the off-by-one boundary error. Restore `>`, save, and rerun so all four pass."
+          ],
           command: run(2)
         }
       ]
     },
+
     "0/2": {
-      workbench: "Use the explorer for the last guided step. Keep the default matrices, advance once, and return after checking the final sum for C[0,0]. The input-load and hardware section belongs to Week 2, Day 3.",
-      intro: "On paper you can point to row 1, column 2. In the C++ starter each matrix occupies one long vector. Today you’ll write the function that turns those two coordinates into a slot number. The supplied multiplication will use your function for every number it reads.",
-      orientation: "In the frame trace, the loop gave you each value in turn. Matrix multiplication needs particular values from two different rows or columns. You’ll tell C++ which slots to read and use a hand calculation to check that it reached the intended cells.",
+      workbench: "Use the Matrix tile explorer only in Step 3: keep the default 4×4 matrices, click Next phase once to verify C[0,0], and come back here. The tiling speedup benchmarks happen in Week 2, Day 3.",
+      intro: "On paper a matrix has rows and columns, but in computer memory (and on a GPU) it lives in one flat 1D array. Today you'll write the index formula that maps `(row, col)` to a flat array position and trace how matrix multiplication walks through memory.",
+      orientation: "In Session 2, a range-for loop visited every item in order. Matrix multiplication needs random access to specific rows and columns, so you'll use an indexed `for` loop and compute flat addresses directly.",
       sections: [
         {
-          title: "Give each cell a flat address",
+          title: "Flattening a 2D matrix into 1D memory (row-major order)",
           body: [
-            "A matrix drawn on paper has rows and columns. A vector in memory has a single sequence of slots numbered from zero. In row-major order, all the entries of row zero come first, then all the entries of row one.",
-            "Imagine two rows of width four. Row zero uses slots 0 through 3. Row one starts at slot 4, so row one, column two is in slot 6. To reach a cell, first skip the complete rows above it, then advance by the cell’s column number. A width belongs to the particular matrix you are reading."
+            "In row-major order, all elements of row 0 come first, followed immediately by row 1, then row 2, and so on (all numbered from 0).",
+            "Look at a matrix with 4 columns (`width = 4`): row 0 uses indices 0–3, and row 1 starts at index 4. So `(row 1, col 2)` sits at index `1 × 4 + 2 = 6`. Notice that `width` is always the number of columns of the *specific* matrix you're indexing into."
           ],
-          language: "Memory diagram",
-          code: "             col 0   col 1   col 2   col 3\nrow 0 slots     0       1       2       3\nrow 1 slots     4       5       6       7"
+          language: "2 × 4 matrix in row-major memory",
+          code: "             col 0   col 1   col 2   col 3\nrow 0 index     0       1       2       3\nrow 1 index     4       5       6       7"
         },
         {
-          title: "Trace the slot first, then the value",
+          title: "Step 1: compute the flat index. Step 2: read the value.",
           language: "C++",
-          code: "std::vector<int> pixels = {8, 3, 6, 4};  // two rows, two pixels per row\nint first = 2;\nint total = 0;\nfor (int k = 0; k < 2; ++k) {\n    total += pixels.at(first + k);\n}",
+          code: "std::vector<int> pixels = {8, 3, 6, 4};  // 2 rows × 2 cols\nint first = 2;\nint total = 0;\nfor (int k = 0; k < 2; ++k) {\n    total += pixels.at(first + k);\n}",
           body: [
-            "Read the loop header in three pieces. `int k = 0` sets the starting position once. `k < 2` decides whether to enter the body on each pass. `++k` adds one after the body runs. The passes therefore use k = 0 and k = 1.",
-            "On the first pass, `first + k` gives slot 2, `pixels.at(2)` fetches 6, and the total becomes 6. On the next pass the slot is 3, the value is 4, and the total becomes 10. In the starter, read `a.at(index_of(row, k, inner))` in the same order. The inner function calculates a slot. The outer call fetches the number stored there."
+            "Read the `for` header in three parts: `int k = 0` runs once at the start; `k < 2` is checked before every iteration; `++k` runs at the end of each iteration. So the loop runs with `k = 0` and `k = 1`.",
+            "For `k = 0`, `first + k` is index 2 (`pixels.at(2) == 6`). For `k = 1`, it's index 3 (`pixels.at(3) == 4`), giving `total = 10`. In `03_matrix.cpp`, `a.at(index_of(row, k, inner))` works the same way: `index_of` computes the flat index, and `.at()` fetches the number stored there."
           ],
           rehearsal: {
-            prompt: "A new image has rows [5, 8, 1] and [7, 2, 9]. You want the first two pixels of the second row. If you run the example loop with `first = 2`, which slots will it read and what will it add up to? What should `first` be?",
-            hint: "Number the six slots from 0 to 5. Put a mark where the second row begins, then trace both passes of the loop.",
-            answer: "With `first = 2`, the loop reads slots 2 and 3, which hold 1 and 7, and leaves `total` equal to 8. Both slots exist, so `.at()` accepts them. Starting at slot 3 reads 7 and 2 from the intended row and gives 9. A hand-labeled row catches the mistake."
+            prompt: "Suppose a 2 × 3 image has row 0 = `[5, 8, 1]` and row 1 = `[7, 2, 9]`, flattened into `[5, 8, 1, 7, 2, 9]`. You want to sum the first two pixels of row 1 (which are 7 and 2). If you mistakenly set `first = 2` in the loop above, which two flat indices does it read, what sum do you get, and what should `first` actually be?",
+            hint: "Write indices 0..5 under `[5, 8, 1, 7, 2, 9]` and see where row 1 actually begins.",
+            answer: "With `first = 2`, the loop reads indices 2 and 3 (values 1 and 7), giving `8` — no crash because both indices are in bounds, just the wrong data! Row 1 actually starts at index `3`, which reads 7 and 2 for a sum of `9`."
           }
         },
         {
-          title: "A dot product walks two different paths",
+          title: "How dot products step through A and B differently",
           body: [
-            "For one output cell C(row, col), hold the row of A and the column of B fixed. Let k run over the shared dimension. Each term multiplies A(row, k) by B(k, col). As k advances, the next A value sits beside the last one. Reaching the next B value takes a whole row of B.",
-            "In the supplied code, `for (int k = 0; k < inner; ++k)` starts k at zero, repeats while k is smaller than the shared dimension, and advances k after each term. `a.at(i)` reads the value in flat slot i and checks the bounds. A legal slot can still contain the wrong matrix entry."
+            "To compute one cell `C(row, col)`, you hold `row` of A and `col` of B fixed while `k` runs from `0` to `inner - 1`, adding `A(row, k) * B(k, col)`.",
+            "Pay attention to memory strides: as `k` increases by 1, `A(row, k)` moves to the very next element in memory (stride 1), whereas `B(k, col)` jumps down an entire row of B (stride = width of B). That stride difference is huge later in CUDA!"
           ]
         }
       ],
       practice: [
         {
-          title: "Build a four-cell reference on paper",
-          body: ["Draw A, B and an empty 2 × 2 result C. Number the rows and columns from zero. Beside the values in A, write the slot numbers 0 through 5 in row order. Start again at 0 for B because it has its own vector. For example, A’s first value is 1 and its slot number is 0.", "Multiply on paper to fill C. Keep those four values handy. When PowerShell prints a check named C(1,0), you’ll compare it with the value in the second row, first column of your paper result."],
-          language: "Input matrices",
-          code: "A (2 rows × 3 columns)     B (3 rows × 2 columns)\n1  2  3                    1  0\n4  5  6                    0  1\n                           1  1"
+          title: "Compute the 2 × 2 product on paper first",
+          body: ["Copy A and B below onto paper, number their rows and columns from 0, and write the flat 0-based indices (0–5) beside each entry of A and B. Then multiply A × B by hand so you have all four entries of C ready to check against your program."],
+          language: "Starter matrices in 03_matrix.cpp",
+          code: "A (2 rows × 3 cols)        B (3 rows × 2 cols)\n1  2  3                    1  0\n4  5  6                    0  1\n                           1  1"
         },
         {
-          title: "Repair indexing and check an extra output",
-          body: ["Run the starter once in Course PowerShell. Its first check calls `index_of(1, 2, 3)`, asking where row 1, column 2 lives when each row has three entries. An untouched starter prints `got 2, expected 5`. Both numbers on this line are slot numbers. The next two lines, labeled C(0,1) and C(1,0), report values of the matrix product."],
+          title: "Fix index_of() and verify C(1,1) and C(1,0)",
+          body: ["Run Exercise 3 once first. The starter's `index_of(1, 2, 3)` asks for row 1, col 2 in a 3-column matrix, and prints `got 2, expected 5` because the starter ignores `row` and only returns `col`."],
           command: run(3),
           actions: [
-            {title:"Fix the slot calculation",body:["Open the file below. For this edit, work in `index_of`. The starter returns just the column, even when you ask for a later row. Use your slot labels to write an expression involving row, width and col. Save with Ctrl+S."],command:edit("03_matrix.cpp")},
-            {title:"Test the bottom-right cell",body:["Run the command below. Once the three supplied checks pass, add a fourth for C(1,1). In main, copy the line beginning `bool z` above the final return and give the new variable its own name. The four numbers at the end of `dot_cell(a, b, 1, 0, 3, 2)` mean row, column, shared dimension and width of B, in that order. Change the column and the quoted label. Use the value from your paper result as the last argument to `check`. Include the new boolean in the final `&&` expression, save, and rerun the same command. You should now see four PASS lines."],command:run(3)},
-            {title:"Trace the six reads for C(1,0)",body:["For k = 0, the program reads A slot 3 (value 4) and B slot 0 (value 1). That term contributes 4 × 1. For k = 1 and k = 2, record each slot and the value read from it. Add the three products and compare with the C(1,0) line in PowerShell. Keep that trace with your paper result."]}
+            {
+              title: "Fix index_of() in 03_matrix.cpp",
+              body: ["Open `03_matrix.cpp` and replace the return expression in `index_of(int row, int col, int width)` using `row`, `width`, and `col`. Save with `Ctrl+S`."],
+              command: edit("03_matrix.cpp")
+            },
+            {
+              title: "Rerun and add a check for C(1,1)",
+              body: ["Run Exercise 3 to confirm the three starter checks pass. Then in `main()`, duplicate the `bool z = check(...)` line for a fourth variable (e.g., `bool w`), change the label to `\"C(1,1)\"`, change column `0` to `1` in `dot_cell(a, b, 1, 1, 3, 2)`, plug in your hand-computed value for C(1,1), and add `&& w` to the final `return` line. Save and rerun so all four lines print `PASS`."],
+              command: run(3)
+            },
+            {
+              title: "Trace all 6 flat reads for C(1,0)",
+              body: ["For `k = 0`, `dot_cell` reads A[3] (= 4) and B[0] (= 1). Write down the exact flat indices and values read from A and B for `k = 1` and `k = 2`, confirm their three products sum to 10, and keep that trace in your notes."]
+            }
           ]
         },
         {
-          title: "Follow one cell through two phases",
+          title: "Quick preview in the Matrix tile explorer",
           body: [
-            "Your C++ loop adds one product at a time. The Matrix tile explorer in the Workbench shows the same arithmetic with a fresh pair of 4 × 4 matrices. It groups four neighboring outputs into a square called a tile. Why group them? C[0,0] and C[0,1] both use row 0 of A. When the GPU computes those neighbors together, it can load a piece of that row once and use it twice.",
-            "Open the explorer in its new tab. Keep tile width 2, Output tile (0, 0) and Trace cell (0, 0). The outlines show the first two pairs of inputs for C[0,0]. Read its running sum. Before you click Next phase, point to the two entries in row 0 of A and the two in column 0 of B that you expect to use next.",
-            "Click Next phase once. Check the new outlines and add those two products to your first sum. Does your answer match the displayed C[0,0]? That finishes the explorer for Session 3. Switch back to this lesson tab, mark step 3 done, and continue to “Try it on new inputs.” Week 2, Day 3 is when you’ll use CUDA to test how much the reuse helps."
+            "Open **Matrix tile explorer** from the Workbench sidebar (it opens in a new tab). Keep the default 4 × 4 matrices, tile width 2, Output tile `(0, 0)`, and Trace cell `(0, 0)`. (Don't worry about the Week 2 tiling speedup section yet — you're just tracing one dot product split into two halves.)",
+            "Look at the first two highlighted pairs for `C[0,0]` and its partial sum. Predict which two entries in row 0 of A and column 0 of B will light up next, then click **Next phase** once and verify the final sum for `C[0,0]`. Switch back here and mark step 3 complete."
           ]
         }
       ]
     },
+
     "0/3": {
-      workbench: "The starter’s `scale` calls `copy_first`. Follow the one value it copies. Use the editor command in step 2 to replace that call with a loop, then test which slots changed.",
-      intro: "A graphics program often gives a function a stretch of memory to fill. Today you’ll change four values through an address and use a fifth value as evidence that the function stopped in the right place.",
-      orientation: "In the matrix exercise, you used a slot number to read an element. Now a function receives the address of its first usable slot. A write through that address changes a value the caller can inspect after the function finishes.",
+      workbench: "The starter's `scale()` calls `copy_first()`, which only copies index 0. In Step 2 you'll replace that with a loop that scales exactly `n` elements without touching the guard slot.",
+      intro: "GPU kernels don't receive `std::vector` objects — they receive raw memory addresses (pointers) plus a length `n`. Today you'll write a function that scales `n` floats through raw pointers and use guard values to verify it stops at the exact right boundary.",
+      orientation: "In Session 3 you indexed inside a `std::vector` with `.at()`. Today your function receives a raw pointer (`float*`) to the first slot of an array, which does *no* automatic bounds checking — so stopping at `n` is 100% up to your loop.",
       sections: [
         {
-          title: "Pass a starting address and a length",
+          title: "Pointers, buffers, and length n",
           body: [
-            "A buffer is a sequence of memory slots used together. Here a vector owns the slots. Calling `in.data()` gives the address of the first input slot. A pointer is a variable that can hold such an address. In `const float* input`, the elements are floating-point numbers and the function may read them through this pointer. With `float* output` the function can write them.",
-            "`input[0]` reads the first number and `output[1]` names the second output slot. The address alone does not tell you how many elements this call is allowed to touch. The caller passes that number separately as `n`. The vector must keep its storage alive while the function uses it."
+            "A **buffer** is a contiguous block of memory slots. When a `std::vector<float>` owns the memory, calling `in.data()` returns a pointer (`float*`) holding the address of slot 0.",
+            "Inside `scale(const float* input, float* output, int n, float factor)`, `input[i]` reads element `i`, and `output[i]` writes element `i`. Because a raw pointer has no `.size()`, the caller passes `n` to tell your function how many elements (indices `0` through `n - 1`) it is allowed to touch."
           ]
         },
         {
-          title: "Follow a write back to the caller’s buffer",
+          title: "Writing through a pointer modifies the caller's array",
           language: "C++",
           code: "std::vector<float> light = {8, 4, 2, 1};\nfloat* pair = light.data() + 1;\nfloat saved = pair[0];\npair[0] = pair[1];\npair[1] = saved;",
           body: [
-            "Draw the four values and point an arrow at the 4. `light.data()` points at the first element. Adding one moves the arrow forward by one whole element. `pair[0]` is now the 4 in slot 1 of `light`, and `pair[1]` is the 2 in slot 2. These names reach the same underlying slots as `light[1]` and `light[2]`.",
-            "`saved` keeps a copy of 4. The first assignment makes the vector [8, 2, 2, 1]. The second makes it [8, 2, 4, 1]. A pointer subscript such as `pair[i]` performs no bounds check. In the lab the caller provides `n` so the function can stop at the agreed end of the buffer."
+            "`light.data()` points at slot 0 (`8`). Adding `1` advances the pointer to slot 1 (`4`). That means `pair[0]` is the exact same memory location as `light[1]`, and `pair[1]` is `light[2]`.",
+            "Swapping through `pair` directly changes `light` into `{8, 2, 4, 1}`. Remember: `pair[i]` has no bounds checking, which is why bugs that write past `n` can silently corrupt neighboring data."
           ],
           rehearsal: {
-            prompt: "Start with [40, 30, 20, 10, 0] and set `pair` to `light.data() + 2`. Use the same three lines to swap the pair. What are the five final values? If the last line were `pair[1] = pair[0];` instead, what would you get?",
-            hint: "Circle the slot that `pair[0]` reaches. Write the full vector after the first assignment, then read the right side of the second assignment from that intermediate vector.",
-            answer: "The pair begins at slot 2. Saving the 20 first gives [40, 30, 10, 20, 0]. After the first write, `pair[0]` already holds 10. Copying it again would leave [40, 30, 10, 10, 0]. Slots 0, 1 and 4 stay unchanged in both versions."
+            prompt: "Start with `light = {40, 30, 20, 10, 0}` and set `float* pair = light.data() + 2;`. After running the 3 swap lines above, what are all 5 values in `light`? What if the last line had a bug and said `pair[1] = pair[0];` instead of `pair[1] = saved;`?",
+            hint: "`light.data() + 2` points at index 2 (the value 20). Write out all 5 array values after each assignment.",
+            answer: "The correct swap turns slots 2 and 3 into 10 and 20, giving `[40, 30, 10, 20, 0]`. With the bug `pair[1] = pair[0];`, slot 2 already became 10 on the previous line, so you overwrite slot 3 with 10 too, giving `[40, 30, 10, 10, 0]` and losing the 20."
           }
         },
         {
-          title: "See what changes after one write",
+          title: "What the starter's copy_first() helper does",
           body: [
-            "The supplied helper copies one value only if the caller supplied at least one element. A function with return type `void` returns no value to its caller. This one changes the caller’s output array through a pointer. The assignment reads the right side first and stores that number in the slot on the left.",
-            "A write is an assignment that stores a value. If the input is [7, 8] and n is 1, the assignment `output[0] = input[0]` writes 7 into the first output slot. Other slots should keep whatever was in them before the call."
+            "A `void` function doesn't return a value; instead, it writes its results into the caller's `output` buffer. The starter's `copy_first` only copies slot 0 (if `n > 0`) and leaves every other slot untouched."
           ],
           language: "C++",
           code: "void copy_first(const float* input, float* output, int n) {\n    if (n > 0) {\n        output[0] = input[0];\n    }\n}"
         },
         {
-          title: "How can a test catch one write too many?",
-          language: "Copy one value starting at slot 0",
-          code: "Output slot                  0    1    2\nBefore the call             90   91   92\nAfter copying one value      7   91   92\nIf it also copies the 8      7    8   92",
+          title: "How guard values (sentinels) catch off-by-one writes",
+          language: "Example: copying n = 1 value into a 3-slot output buffer",
+          code: "Output index                 0    1    2\nBefore the call             90   91   92\nCorrect (1 write, n=1)       7   91   92\nBug (1 extra write)          7    8   92",
           body: [
-            "The caller has three output slots but asks for just one copy, starting at slot 0. If the function also puts 8 in slot 1, that second assignment is an extra write. Slot 1 exists. It simply belongs to a part of the array this call was supposed to leave alone.",
-            "Here the test puts 91 in slot 1 before the call and checks it afterward. That known starting number is a guard value (sometimes called a sentinel). Seeing 8 where you expected 91 tells you the function changed slot 1. The number 92 in slot 2 can also serve as a guard, but it stays 92 in both rows, so checking it alone would miss this particular mistake."
+            "Suppose `output` has 3 slots pre-filled with `[90, 91, 92]`, and you ask a function to write only `n = 1` value (`7`) at index 0. Slot 1 (`91`) is a **guard value** (also called a sentinel) — a known number placed right past the end of the requested write range.",
+            "If an off-by-one loop accidentally writes an extra element into index 1, `output[1]` changes from `91` to `8`, and your test immediately catches the out-of-bounds write. If you had pre-filled `output` with zeros and were testing a write of zero, you might never notice a missed write OR an extra zero write!"
           ]
         }
       ],
       practice: [
         {
-          title: "Predict writes and untouched slots",
-          body: ["First try two paper calls to `copy_first`. For each call, start over with input [7, 8] and output [90, 91]. What stays in the output when n is 0? What changes when n is 1?", "Now use the arrays in the actual starter. The input is [2, −1, 0, 6] and the five output slots all start at 99. Predict the contents after scaling four inputs by 0.5. Run the command below. Each line labeled `slot` compares the value stored there with your target. Slot 4 should pass even with the placeholder, because that slot should keep its original 99."],
+          title: "Predict copy_first() and the starter run",
+          body: [
+            "On paper, trace `copy_first` with `input = [7, 8]` and `output = [90, 91]` for `n = 0`, then again from `[90, 91]` for `n = 1`.",
+            "Next, look at the starter test in `04_buffers.cpp`: `in = [2, -1, 0, 6]`, `out` has 5 slots all initialized to `99`, and we want to scale the 4 inputs by `0.5` into slots 0–3 while leaving slot 4 as `99`. Predict all 5 slots of `out`, then run Exercise 4."
+          ],
           command: run(4)
         },
         {
-          title: "Write exactly n scaled values",
-          body: ["Open the file with the command below. Inside `scale`, replace the call to `copy_first` with a loop. Start i at zero, continue while `i < n`, and increase i after each pass. In each iteration read the input at i, multiply by `factor`, and store the result at the same index of the output."],
+          title: "Implement scale() for n elements",
+          body: ["Open `04_buffers.cpp`. Inside `scale()`, replace the call to `copy_first(...)` with a `for` loop (`i` from `0` while `i < n`) that sets `output[i] = input[i] * factor;`."],
           command: edit("04_buffers.cpp"),
-          actions:[{title:"Check the writes and the stopping point",body:["Save and run exercise 4 again. Slots 0–3 test the arithmetic. Slot 4 tests whether you stopped after four writes. Then main calls scale again on the same output with n = 0. The printed empty-call check inspects slot 0: it should still hold the result of the first call. Which mistake could pass the four arithmetic checks and still fail the guard?"],command:run(4)}]
+          actions: [{
+            title: "Save and rerun Exercise 4",
+            body: ["Save and run Exercise 4. Slots 0–3 verify the math, slot 4 verifies your loop didn't write past `n = 4`, and the final `n = 0` call verifies that calling `scale` with length 0 leaves `out[0]` untouched."],
+            command: run(4)
+          }]
         },
         {
-          title: "Write two values and check all four slots",
-          body: ["In `04_buffers.cpp`, you’ve finished writing `scale`. Now you’re writing a test in `main`. Add two lines to run a new example and four more to check what it did.", "Find `scale(in.data(), out.data(), 0, 5);` near the bottom of `main`. Insert the two lines below immediately after it, above the line beginning `return check(`. If you already added this pair, continue with the four checks."],
-          language:"First two lines to add in main",
-          code:"std::vector<float> short_out = {7, 8, 9, 10};\nscale(in.data(), short_out.data(), 2, 0.0f);",
-          actions:[
+          title: "Add the short_out test (4 explicit check lines)",
+          body: [
+            "Now add a second test in `main()` to verify scaling by `0.0f` on a 4-slot buffer where only the first 2 slots should change. Find `scale(in.data(), out.data(), 0, 5);` near the bottom of `main()` and paste these two lines right below it (above the final `return check(...)`):"
+          ],
+          language: "Add these 2 lines in main() of 04_buffers.cpp",
+          code: "std::vector<float> short_out = {7, 8, 9, 10};\nscale(in.data(), short_out.data(), 2, 0.0f);",
+          actions: [
             {
-              title:"Predict what will be in short_out",
-              body:["The `2` tells `scale` to write slots 0 and 1. It multiplies the first two inputs, 2 and −1, by the factor `0.0f`. Slots 2 and 3 start at 9 and 10. Write down what you expect to find in each of the four slots after the call.", "Keep the original five-slot loop above your new test. It already checks that `out[4]` stayed 99. The new vector, `short_out`, ends at index 3. Its guards are `short_out[2]` and `short_out[3]`."]
+              title: "Predict all 4 slots of short_out",
+              body: ["`n = 2` tells `scale()` to write only indices 0 and 1 (multiplying `2` and `-1` by `0.0f`). Indices 2 and 3 are guards that start at `9` and `10` and must NOT change. Write down your 4 expected values for `short_out[0..3]`."]
             },
             {
-              title:"Add four check lines immediately below the new scale call",
-              body:["Here is the first line. Inside `check`, the quoted text names the test in PowerShell, `short_out[0]` reads the actual value, and `0.0f` is the value you predicted. Use the `ok` declared earlier in `main` as `bool ok = true;`. Each line runs its check and combines the result with the earlier ones. A failure leaves `ok` false all the way to the final `return`.", "Copy this line into `main` and make three more copies directly below it. On those three lines change the slot number in both the label and the brackets to 1, 2 and 3 respectively. Change the last argument of each `check` to your prediction for that slot. The original `return check(...)` goes immediately after the fourth line."],
-              language:"First of the four checks",
-              code:'ok = check("short slot 0", short_out[0], 0.0f) && ok;',
-              worked:{
-                title:"See all four check lines together",
-                code:'ok = check("short slot 0", short_out[0], 0.0f) && ok;\nok = check("short slot 1", short_out[1], 0.0f) && ok;\nok = check("short slot 2", short_out[2], 9.0f) && ok;\nok = check("short slot 3", short_out[3], 10.0f) && ok;'
+              title: "Write 4 separate check lines (one per slot)",
+              body: [
+                "Right below your new `scale(...)` call, add **four** separate `ok = check(...) && ok;` lines — one each for `short_out[0]`, `short_out[1]`, `short_out[2]`, and `short_out[3]`. (You don't need a loop here, and reuse the existing `bool ok` variable already declared earlier in `main()` — don't declare a second `ok2`.)",
+                "Here is the first line; copy it 3 more times for slots 1, 2, and 3, updating the label, index, and expected value on each line (leaving the original `return check(...)` at the very bottom):"
+              ],
+              language: "Line 1 of 4",
+              code: 'ok = check("short slot 0", short_out[0], 0.0f) && ok;',
+              worked: {
+                title: "See all 4 check lines together",
+                code: 'ok = check("short slot 0", short_out[0], 0.0f) && ok;\nok = check("short slot 1", short_out[1], 0.0f) && ok;\nok = check("short slot 2", short_out[2], 9.0f) && ok;\nok = check("short slot 3", short_out[3], 10.0f) && ok;'
               }
             },
             {
-              title:"Run your test and read the four new lines",
-              body:["Save the file and run the command below in Course PowerShell. Look between the original `slot 4` line and `empty call preserved output`. You should see four lines labeled `short slot`. Slot 1 can print `got -0, expected 0`. Multiplying −1 by zero can produce negative floating-point zero, which compares equal to zero.", "If the first two slots still contain 7 and 8, the writes that should have produced zero didn’t happen. If slot 2 or 3 changes, the function wrote past the requested two values. In your notes, explain which of those mistakes you could miss if all four slots had started at zero."],
-              command:run(4),
-              expected:"PASS short slot 0 | got 0, expected 0\nPASS short slot 1 | got -0, expected 0\nPASS short slot 2 | got 9, expected 9\nPASS short slot 3 | got 10, expected 10"
+              title: "Save, run, and check the output",
+              body: [
+                "Save and run Exercise 4. You should see all four `PASS short slot` lines (note: `-1 * 0.0f` prints `-0`, which equals `0` in floating point).",
+                "In your notes, explain why starting `short_out` at `{7, 8, 9, 10}` instead of `{0, 0, 0, 0}` catches *both* a function that forgot to write slots 0–1 *and* a function that accidentally overwrote slots 2–3."
+              ],
+              command: run(4),
+              expected: "PASS short slot 0 | got 0, expected 0\nPASS short slot 1 | got -0, expected 0\nPASS short slot 2 | got 9, expected 9\nPASS short slot 3 | got 10, expected 10"
             }
           ]
         }
       ]
     },
+
     "0/4": {
-      workbench: "Edit the C++ simulator for steps 1 and 2. In step 3 you’ll read two lines of CUDA and check the output of an existing GPU program. Your first GPU code edit comes in Week 1.",
+      workbench: "In Steps 1–2 you'll edit the CPU thread simulator (`05_threads.cpp`). In Step 3 you'll read a real CUDA kernel (`first_kernel.cu`). At the end, you'll write a short C++ function on real handwritten digit data (`ink_profile.hpp`).",
       checkpoint: {
-        title: "Profile a handwritten digit",
-        introduction: "A handwritten digit is a grid of numbers. Higher values mean more ink. Your C++ function measures the stroke one row at a time by counting how many pixels reach the cutoff. It writes one count per row into `counts`.",
-        // First zero in labs/compute/data/digits.txt. Each character encodes one value from 0 to 16.
+        title: "Final C++ checkpoint: profile a handwritten digit",
+        introduction: "Before moving into CUDA next week, put loops, conditionals, and flat 2D indexing together in one clean C++ function. A handwritten digit is stored as a flat list of pixel brightness values (`0` = blank paper, `16` = darkest ink). Your job is to write `row_profile()`, which counts how many pixels in each row are **at least `cutoff`** (`>= cutoff`) and writes each row's count into `counts.at(row)`.",
         digit: "005d910000dfaf5003f20b8004c008800580098004b01c7002e5ac00006da000",
         testRows: [[0, 8, 7, 12], [11, 2, 0, 3]],
         testCutoff: 8,
         actions: [
-          {title: "Write the same count in C++", body: ["Open the file with the command below. In `row_profile`, replace the comment between the braces. The test gives you `pixels`, the number of pixels per row (`width`), the number of rows (`height`), and the `cutoff`. It also creates `counts` with room for your answers.", "Think back to counting slow frames in Session 2. This time, count a pixel if its value is at least `cutoff`. Read the value with `pixels.at(index)`. When you finish a row, write its tally into `counts.at(row)`. Start a fresh tally for the next row."], command: ".\\Edit-CourseFile.ps1 .\\labs\\primer\\ink_profile.hpp", commandLabel:"Open the file from Course PowerShell", hint:"If the flat list is the sticking point, use Session 3’s matrix idea. How many entries come before the row you want? Add the column’s position within that row to reach one pixel. With zero columns the row has zero qualifying pixels. With zero rows there’s nothing to write."},
-          {title: "Run the tests and read your row counts", body: ["Save your edit and run the command below. Read the line labeled `non-square image` first. On a pass, the two numbers after `row counts` should match your two table entries. If it reports a wrong count, the message names the first row that disagreed. A result of `-99` means that output still holds the test’s starting value.", "Finish when all five cases say `PASS`. The line `UCI handwritten 0` shows one count for each of the real digit’s eight rows. `guard intact` means the extra slot after the last answer kept its original value."], command: "powershell -ExecutionPolicy Bypass -File .\\labs\\primer\\run.ps1 -Study ink", commandLabel:"Build and test in Course PowerShell"}
+          {
+            title: "Step B · Implement row_profile() in C++",
+            body: [
+              "Open `labs/primer/ink_profile.hpp` with the command below and replace the `// STUDENT` comment inside `row_profile(...)`. You are given `pixels` (a flat row-major vector of length `width * height`), `width` (pixels per row), `height` (number of rows), `cutoff` (minimum ink value to count), and `counts` (already sized to hold `height` answers).",
+              "Write an outer loop over `row` (`0` to `height - 1`) and an inner loop over `col` (`0` to `width - 1`). For each row, start a fresh counter at `0`, look up the pixel at `pixels.at(row * width + col)`, add 1 if it is `>= cutoff`, and store the finished count in `counts.at(row)`."
+            ],
+            command: ".\\Edit-CourseFile.ps1 .\\labs\\primer\\ink_profile.hpp",
+            commandLabel: "Open ink_profile.hpp in your editor",
+            hint: "Remember Session 3's flat index formula (`row * width + col`) and Session 2's counter pattern. Reset your row counter to 0 at the start of every row so counts don't bleed from one row into the next."
+          },
+          {
+            title: "Step C · Run the automated tests",
+            body: [
+              "Save `ink_profile.hpp` and run the test command below. Check that `non-square image` prints your hand-worked counts `[2, 1]`, and that all 5 test cases (including the real 8 × 8 UCI handwritten zero and guard check) print `PASS`."
+            ],
+            command: "powershell -ExecutionPolicy Bypass -File .\\labs\\primer\\run.ps1 -Study ink",
+            commandLabel: "Compile and test ink_profile.hpp"
+          }
         ],
         solution: "for (int row = 0; row < height; ++row) {\n    int dark = 0;\n    for (int col = 0; col < width; ++col) {\n        if (pixels.at(row * width + col) >= cutoff) {\n            ++dark;\n        }\n    }\n    counts.at(row) = dark;\n}",
-        explain: "For the first image the counts are 2 and 1. The second row starts at flat slot 4. A fresh tally makes each output describe its own row. A width of zero skips the inner loop and stores zero. A height of zero skips every write."
+        explain: "For the 2 × 4 test image, row 0 (flat indices 0–3) has 2 values ≥ 8 (`8` and `12`), and row 1 (flat indices 4–7) has 1 value ≥ 8 (`11`). Resetting `dark = 0` inside the outer loop keeps every row independent, and edge cases like `width == 0` or `height == 0` work cleanly without touching out-of-bounds slots."
       },
-      intro: "So far your loops have visited array positions in order. Imagine giving each position to a different worker. How would a worker find its position, and what should it do if the array ends halfway through a block? Try that idea in a C++ simulator first. Then inspect a GPU program and ask what a passing result tells you about how its threads shared the work.",
-      orientation: "In the simulator, a slot is a position in the array. The number stored there counts visits to that position. For example, if slot 2 holds 5, the third position has been visited five times. When a worker visits it again, the slot is still 2 and the count becomes 6.",
+      intro: "So far, a single loop has walked through array positions one by one. A GPU works differently: it launches hundreds or thousands of independent workers (threads) grouped into equal-sized blocks, and each worker computes which single array index it owns. Today you'll build a tiny C++ simulator of that grid and inspect your first real CUDA kernel.",
+      orientation: "Keep two terms clearly separate today: an **array index** (or **slot**) is a position in `visits` (0, 1, 2, …), and the **number stored at that index** counts how many workers visited it. If every valid index ends up holding `1`, your grid covered the array cleanly with zero overlaps and zero misses.",
       sections: [
         {
-          title: "A worker knows its group and position",
+          title: "How a thread finds its global array index",
           body: [
-            "CUDA groups threads into blocks. The starter uses the name `lane` for a thread’s position inside its block. In this one-dimensional CUDA launch that position is called `threadIdx.x`. Later you’ll also encounter a warp, a group of 32 threads with its own lane numbers.",
-            "For this example, use three threads per block. Read down any column in the diagram. Block 0 takes indices 0, 1 and 2. Block 1 therefore starts at index 3. Its lane 0 gets index 3, and its lane 1 gets index 4. The C++ exercise below uses four threads per block. The calculation is the same for either width."
+            "CUDA launches threads in **blocks** of equal size. Every thread knows two numbers: which block it's in (`block`, called `blockIdx.x` in CUDA) and its local position inside that block (`lane`, called `threadIdx.x` in CUDA).",
+            "Look at this example with 3 workers per block (`block_size = 3`): Block 0 handles global indices `0, 1, 2`, so Block 1 starts at global index `3` (`3, 4, 5`). Your C++ starter uses 4 workers per block, and the formula works for *any* `block_size`."
           ],
-          language:"Three threads per block",
-          code:"block           0  0  0     1  1  1\nlane            0  1  2     0  1  2\nglobal slot     0  1  2     3  4  5"
+          language: "3 workers per block (block_size = 3)",
+          code: "block          0  0  0     1  1  1\nlane           0  1  2     0  1  2\nglobal index   0  1  2     3  4  5"
         },
         {
-          title: "What do two nested loops actually count?",
+          title: "Why the simulator checks that every slot was visited ONCE",
           language: "C++",
-          code: "std::vector<int> hits(3, 0);  // three counters, all starting at zero\nfor (int sweep = 0; sweep < 2; ++sweep) {\n    for (int cell = 0; cell < 3; ++cell) {\n        hits.at(cell) += 1;\n    }\n}",
+          code: "std::vector<int> visits(3, 0);  // 3 slots, all starting at 0\nfor (int sweep = 0; sweep < 2; ++sweep) {\n    for (int cell = 0; cell < 3; ++cell) {\n        visits.at(cell) += 1;\n    }\n}",
           body: [
-            "The braces place the entire `cell` loop inside the `sweep` loop. With `sweep` equal to 0, `cell` runs through 0, 1 and 2. Each `+= 1` adds one visit to the selected counter. The counters finish this sweep at [1, 1, 1].",
-            "On sweep 1 the inner loop starts `cell` at zero again. The vector was created outside both loops, so its counts carry over. It finishes at [2, 2, 2]. In the lab, `simulate_launch` receives `std::vector<int>& visits`. The `&` lets it update the caller’s vector. After the call, `main` counts how many entries equal one."
+            "Nested loops run the entire inner loop once for every pass of the outer loop. Here `sweep = 0` turns `visits` into `[1, 1, 1]`, and `sweep = 1` adds 1 again to get `[2, 2, 2]`.",
+            "In `05_threads.cpp`, `simulate_launch(visits, block_size)` receives `std::vector<int>& visits` (mutable reference, so changes stick). If two workers accidentally compute the *same* `index`, that slot gets `2` while another slot stays `0` — which is why `main()` checks that every single slot finishes with **exactly 1** visit."
           ],
           rehearsal: {
-            prompt: "Change the example to four counters starting at zero. Each of two sweeps visits only cells 0 and 1. There are four writes for four counters. What counts do you expect to see, and how many cells were visited exactly once?",
-            hint: "Draw four boxes. Add one tally in each destination box for the first sweep, then add the second sweep’s tallies to the same drawing.",
-            answer: "The first sweep leaves [1, 1, 0, 0]. The second leaves [2, 2, 0, 0]. Zero cells were visited exactly once. Counting four writes hides both duplicated visits and both missing cells. This is why the simulator counts the slots that received exactly one visit."
+            prompt: "Suppose `visits` has 4 slots starting at `[0, 0, 0, 0]`, and two sweeps each increment only indices 0 and 1. That's 4 total writes across 4 slots — what values end up in `visits`, and how many slots were visited *exactly once*?",
+            hint: "Sweep 1 makes `[1, 1, 0, 0]`. Now run sweep 2 on the same array.",
+            answer: "After sweep 2, `visits` is `[2, 2, 0, 0]`, so **0** slots were visited exactly once. Total writes alone can't detect collisions — checking that every slot equals 1 catches both duplicate writes and skipped slots."
           }
         },
         {
-          title:"Count what happens to each worker",
-          body:[
-            "Before the loops start, the simulator decides how many blocks to run. `n` is the number of slots in `visits`. `block_size` is the number of workers in each block. The expression `(n + block_size - 1) / block_size` counts the blocks needed, including a final block if even one slot is left over.",
-            "Each pass through the inner `lane` loop represents one worker starting. All the workers in the last block start, even when only one array slot still needs a visit.",
-            "Follow one worker as far as `if (index < n)`. If the test is true, it executes `visits.at(index) += 1;`. Count that worker under “wrote.” If the test is false, the worker has already started, but it reaches the end of the loop body without touching the array. Count it under “skipped.” Every worker that starts belongs in exactly one of those two groups.",
-            "The simulator runs the workers one by one. GPU threads can overlap in time. Think about what it takes to increment a counter: a thread reads the old number, adds one, then stores its result. If two threads share a counter, the second thread might read the old number before the first has stored its update. That conflict is called a race. You’ll reason about it on paper in step 3."
+          title: "Started vs. wrote vs. skipped (handling a partial last block)",
+          body: [
+            "Suppose your array has `n = 5` elements and `block_size = 4`. One block only gives 4 workers (indices 0–3), missing index 4! So before launching, the simulator computes the number of blocks with ceiling division: `blocks = (n + block_size - 1) / block_size` = `(5 + 4 - 1) / 4 = 8 / 4 = 2` blocks.",
+            "Those 2 blocks launch `2 × 4 = 8` workers total (**started = 8**). Each worker computes its `index` and checks `if (index < n)`:",
+            "• Workers with index `0, 1, 2, 3, 4` pass the check and execute `visits.at(index) += 1;` (**wrote = 5**).\n• Workers with index `5, 6, 7` fail `index < 5` and do nothing (**skipped = 3**).\nAlways check your math: `wrote + skipped == started`.",
+            "One more real-GPU detail: our CPU simulator runs workers one after another, but real GPU threads run **at the same time**. If two threads try to do `counter += 1` at the same memory slot simultaneously, both can read `0`, both compute `1`, and both write `1` — losing one increment. That bug is called a **data race**."
           ]
         }
       ],
-      practice:[
+      practice: [
         {
-          title:"Compute the global index for each worker",
-          body:["Open `05_threads.cpp` with the command below. In `simulate_launch`, find the line beginning `int index =`. The starter uses `lane` on the right. That gives the worker’s position within its own block. Change the right-hand side so `index` gives the worker’s position across all blocks, counting from zero. If you’ve already edited this line, use the drawing below to check your expression."],
-          command:edit("05_threads.cpp"),
-          actions:[
-            {title:"Work out the expression",body:["Draw two rows of four workers, one row per block. Label the lanes 0 through 3 in each row. Now give each worker a global index. Compare lane 0 in the two rows. Does your expression give each of those workers the number you wrote for it? Use the variables in the simulator so your expression also works when the block size changes."]},
-            {title:"Check which workers reach the array",body:["Suppose `visits` has five elements. Circle the workers in your drawing whose index passes the existing `if (index < n)` check. A worker can have a global index even when there is no array element at that index. Save your edit and run the command in step 2."]}
+          title: "Compute each worker's global index in 05_threads.cpp",
+          body: ["Open `05_threads.cpp` and find `int index = lane;` inside `simulate_launch`. Right now, every block reuses indices `0, 1, 2, 3` — so Block 1 overwrites Block 0's slots! Replace `lane` with an expression using `block`, `block_size`, and `lane` so every worker gets its unique 0-based global index across all blocks."],
+          command: edit("05_threads.cpp"),
+          actions: [
+            {
+              title: "Double-check your formula on paper",
+              body: ["Draw 2 blocks of 4 workers (lanes 0–3 in each). Block 0 should get global indices `0, 1, 2, 3`, and Block 1 should get `4, 5, 6, 7`. Verify your expression gives `0` for `(block=0, lane=0)` and `4` for `(block=1, lane=0)` — and still works if `block_size` changes to 6 or 8."]
+            },
+            {
+              title: "Check which workers pass the bounds guard for n = 5",
+              body: ["In your 2-block drawing, circle every worker whose global index is `< 5` (they write) and cross out the rest (they skip). Save `05_threads.cpp` before moving to Step 2."]
+            }
           ]
         },
         {
-          title:"Predict the worker counts, then check the array",
-          body:["Start in `main`. Each number in the list gives the length of a separate test. When the loop picks 9, `std::vector<int> visits(n, 0)` creates nine counters, all zero. Then `simulate_launch(visits, 4)` starts the simulation for that array with four workers per block. The next test gets a fresh array.", "Inside `simulate_launch`, count one worker as “started” each time the inner loop begins a pass. Did that worker reach `visits.at(index) += 1;`? Count it under “wrote.” Did its `index < n` test fail? Count it under “skipped.” Try counting along in this smaller example first."],
-          visual:"worker-trace",
-          actions:[
-            {title:"Try the same reasoning with your own input",body:["Back in `05_threads.cpp`, `simulate_launch(visits, 4)` sets the block size to four. In `main`, add 0 and 9 to the existing list of test lengths if you haven’t already. Save the file.", "For nine items, draw enough rows of four boxes to give every item a worker. Keep all four boxes in the last row. Number the boxes starting at zero. Tick each box whose index is smaller than nine and cross out the others. Write down three counts: all the boxes (started), ticks (wrote), and crosses (skipped). Repeat for zero items. How many times would the outer loop enter its body?"]},
-            {title:"Read what PowerShell actually counted",body:["Run the command below. In `main`, the last loop counts how many array elements ended with exactly one visit. That number is printed as `got`. On a correct run it should match your “wrote” tally. The program doesn’t print the other two tallies. Check those against your drawing: wrote plus skipped must equal started. If you have already run the program, you can use its existing output for this comparison."],command:run(5)}
+          title: "Predict started / wrote / skipped counts and run Exercise 5",
+          body: ["First, click through the interactive 4-slot / 3-workers-per-block trace below so you can see started, wrote, and skipped in action."],
+          visual: "worker-trace",
+          actions: [
+            {
+              title: "Add test lengths 0 and 9 in main()",
+              body: [
+                "In `05_threads.cpp`, `main()` loops over a list of array lengths and calls `simulate_launch(visits, 4)` (4 workers per block) on each one. Add `0` and `9` to that test list and save.",
+                "Before running, predict the three worker counts for **n = 9** (with 4 workers per block): how many blocks launch, how many total workers start (`blocks × 4`), how many write (`index < 9`), and how many skip (`index >= 9`)? Do the same for **n = 0**."
+              ]
+            },
+            {
+              title: "Run Exercise 5 in PowerShell",
+              body: ["Run the command below. For each test length `n`, `got` prints how many array slots ended up with **exactly 1 visit** — it should match your `wrote` count (and `n`) on every single line!"],
+              command: run(5)
+            }
           ]
         },
         {
-          title:"Read one GPU launch and explain what its test checked",
-          body:["The simulator on your CPU counted visits. The GPU program has a different job: for each position in two arrays, add the pair of numbers and store the sum. A native build compiles that program into `build/first_kernel.exe` and runs it. If you already built it, use the result you have."],
-          actions:[
-            {title:"Find the block size and the worker doing the sums",body:["Open the CUDA file with the editor command below. In `main`, search for `add_student<<<`. That line asks the GPU to run a function, called a kernel. The second number inside `<<< >>>` is 256, the number of threads in each block. Now find the definition of `add_student` near the top. In the supplied version, `blockIdx.x` is the block number and `threadIdx.x` is the thread number inside it. Read the `if` and its loop. Which thread actually does the sums in this starter? Today this file is for reading; Week 1 gives you the edit."],command:".\\Edit-CourseFile.ps1 .\\labs\\launch\\first_kernel.cu"},
-            {title:"Find the result for 257 items",body:["Look for `PASS serial and student, n=257` in your native build output. The test runs each kernel and compares every returned value with the sum computed on the CPU. With 256 threads per block, 257 items just cross a block boundary. A PASS tells you the sums matched. It gives no count of how many different threads did useful work.", "Already built it but lost the output? Run `.\\build\\first_kernel.exe` in Course PowerShell. For a first native build, use the command below. If you already used the Python checker, its equivalent line is `PASS n=257: serial and student match every element`; either result is sufficient here."],command:"powershell -ExecutionPolicy Bypass -File .\\Build-Native.ps1",commandLabel:"First native build only",expected:"PASS serial and student, n=257"},
-            {title:"Put three observations in your lesson notes",body:["Choose Open lesson notes on this page, or go to Check & save and scroll to Save your lesson notes. Write a few sentences there. You can refer back to your drawing and PowerShell output.", "1. Pick two neighboring blocks in your simulator drawing. Where do the second block’s indices begin relative to the first block’s indices? Explain why your rule visits every real array element once and what the last few workers do when their index falls outside the array. That is what “coverage” means here.", "2. Paste your GPU check line for 257 items. Say what the test compared and why this length checks something that 256 items alone would miss.", "3. Imagine two GPU threads trying to add one to the same counter. Each reads the old value, adds one and stores its result. Suppose both read 0 before either thread stores anything. Write the number each thread would store. How would the final counter compare with two increments done one after the other?"]}
+          title: "Read a real CUDA kernel and record 3 short notes",
+          body: ["Now see how this exact block/lane pattern looks in real CUDA C++. In `first_kernel.cu`, a GPU kernel adds two arrays element-by-element (`c[i] = a[i] + b[i]`). You're just reading it today — you'll edit it in Week 1."],
+          actions: [
+            {
+              title: "Inspect add_student in first_kernel.cu",
+              body: ["Open `labs/launch/first_kernel.cu`. In `main()`, find `add_student<<<..., 256>>>` — the second number (`256`) is the number of threads per block. Now scroll up to the definition of `add_student` and read its `if` statement: which single thread is actually doing all the additions in this starter?"],
+              command: ".\\Edit-CourseFile.ps1 .\\labs\\launch\\first_kernel.cu"
+            },
+            {
+              title: "Check the n = 257 output",
+              body: ["Run `.\\build\\first_kernel.exe` (or `Build-Native.ps1` if you haven't built it yet) and look for `PASS serial and student, n=257`. Why is `n = 257` such an important test when `blockDim.x = 256`? Because 257 elements spill 1 element into Block 1! Also notice what `PASS` does *not* prove: it confirms the sums are right, even though the starter's `add_student` is secretly using only 1 thread!"],
+              command: "powershell -ExecutionPolicy Bypass -File .\\Build-Native.ps1",
+              commandLabel: "Build & run native first_kernel (if not already built)",
+              expected: "PASS serial and student, n=257"
+            },
+            {
+              title: "Jot down 3 brief takeaways in Check & Save",
+              body: [
+                "Open your lesson notes on the **Check & Save** tab and write a few sentences covering these three concrete points:",
+                "1. **How your formula covers the whole array:** Why does `block * block_size + lane` visit every slot `0..n-1` exactly once without colliding, and what happens to the extra threads when `n` isn't a multiple of `block_size`?",
+                "2. **What the n = 257 GPU test checked:** Paste the `PASS ... n=257` line and explain why testing 257 elements catches multi-block bugs that testing 256 elements alone would miss.",
+                "3. **Lost updates (data race):** Suppose two GPU threads both run `counter += 1` at the same time when `counter` starts at `0`, and both read `0` before either writes back. What value does each thread write, and how does the final result compare to two sequential increments?"
+              ]
+            }
           ]
         }
       ]

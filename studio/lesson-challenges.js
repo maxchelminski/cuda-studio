@@ -1,248 +1,248 @@
 window.LESSON_CHALLENGES = {
   "0/0": {
-    "prompt": "Add a small function `float frame_ms(float rate)` beside `fps` in 01_frames.cpp. Call it inside `fps(frame_ms(80.0f))` and predict both the intermediate value and the final value. Add a `check` line for each, then rerun exercise 1.",
-    "hint": "Use 1,000 milliseconds per second and a positive rate. Follow the worked `seconds_to_ms` function for the declaration and return statement. Put the new checks before the final return in main and include their results in its success condition.",
-    "check": "For 80 FPS, one frame takes 12.5 ms. Passing 12.5 to `fps` returns 80. Both results are exactly representable as float."
+    "prompt": "In `01_frames.cpp`, add a small helper function `float frame_ms(float rate)` next to `fps` that converts FPS back into milliseconds per frame. Call `fps(frame_ms(80.0f))`, predict both the intermediate `frame_ms` value and the final `fps` result, add a `check` line for each, and rerun exercise 1.",
+    "hint": "Use `1000.0f` milliseconds per second and assume a positive rate. Model your function signature and return statement on the worked `seconds_to_ms` example. Add the new checks before `main` returns and include them in its final pass/fail expression.",
+    "check": "At 80 FPS, one frame takes `12.5` ms, and passing `12.5` into `fps` returns `80`. Both numbers have exact binary `float` representations."
   },
   "0/1": {
-    "prompt": "You’ve counted late frames. Now measure the time they cost. In `02_loop.cpp`, write `int total_lateness(const std::vector<int>& samples, int budget)` and return the total milliseconds beyond the budget. In `main`, add a check that calls your new function on [14, 16, 19, 22] with a 16 ms budget. Predict the excess for each frame and use their sum as the expected value. Save, rerun exercise 2, then use the challenge command below to test the saved functions on the same input and on additional cases.",
-    "hint": "Start a sum at zero. In the branch where a frame exceeds budget, add only its excess. Include your new check in main’s final success condition.",
-    "check": "The expected return value for `total_lateness` is 9 ms. The four frames contribute 0, 0, 3 and 6 ms. A terminal line for total lateness saying `got 9, expected 9` is a pass. The command also checks a different quantity on those same frames: `count_over` returns 2 late frames (19 and 22 ms). Both results are correct.",
+    "prompt": "You’ve already counted late frames—now sum up how late they are. In `02_loop.cpp`, write `int total_lateness(const std::vector<int>& samples, int budget)` to return the total milliseconds past the budget across all late frames. In `main`, add a check calling `total_lateness` on `[14, 16, 19, 22]` with a `16 ms` budget, predicting each frame’s excess first. Save, rerun exercise 2, then run the challenge command below to test both saved functions on more cases.",
+    "hint": "Initialize a running sum to `0`. Whenever a frame exceeds `budget`, add `ms - budget` (just the excess, not the whole frame time). Include the new check in `main`’s final pass/fail return.",
+    "check": "`total_lateness` should return `9` ms (`0 + 0 + 3 + 6`). Seeing `got 9, expected 9` is a pass. The command also checks `count_over` on the same input, which returns `2` late frames (`19` and `22` ms)—both checks should pass.",
     "command": "powershell -ExecutionPolicy Bypass -File .\\labs\\primer\\run.ps1 -Study lateness"
   },
   "0/2": {
-    "prompt": "Add a tiny non-square multiplication to main in 03_matrix.cpp. A is the row [−1, 2]. B has rows [4, 0, 2] and [3, −2, 5]. Write three checks using `dot_cell`. Predict the result before running exercise 3.",
-    "hint": "Flatten B one full row at a time. Pass 2 for `inner` and 3 for `out_cols`. Use row 0 for all calls. Include all three check results in main’s final success condition.",
-    "check": "The three results are 2, −4 and 8. A stride of two in B would fetch the wrong cells for its second row."
+    "prompt": "In `03_matrix.cpp`, add a tiny non-square matrix multiply to `main`: let `A` be the 1×2 row `[−1, 2]`, and let `B` be the 2×3 matrix with rows `[4, 0, 2]` and `[3, −2, 5]`. Predict all three output entries by hand, add three `check` calls using `dot_cell`, and rerun exercise 3.",
+    "hint": "Store `B` flat one full row at a time (`{4, 0, 2, 3, -2, 5}`). Pass `2` for `inner`, `3` for `out_cols`, and `0` for `row` in all three calls, and include all three checks in `main`’s return condition.",
+    "check": "The three output entries are `2`, `−4`, and `8`. If your code accidentally used a row stride of 2 for `B`, it would pull the wrong entries for `B`’s second row."
   },
   "0/3": {
-    "prompt": "In main in 04_buffers.cpp, just before its final return, try scaling the same buffer in place. Start with `float v[] = {90, 2, -1, 4, 91};` and call `scale(v + 1, v + 1, 3, -2.0f)`. Predict all five slots and check them after the call.",
-    "hint": "Both pointers start at slot 1. Each iteration reads and then replaces only that same slot.",
-    "check": "The result is [90, −4, 2, −8, 91]. The three middle slots hold the expected products. The two outer slots still hold their starting values, 90 and 91."
+    "prompt": "In `04_buffers.cpp`, right before `main` returns, test scaling a buffer in place. Start with `float v[] = {90, 2, -1, 4, 91};` and call `scale(v + 1, v + 1, 3, -2.0f)` so both input and output pointers start at `v[1]`. Predict all five entries of `v`, then add checks to verify them.",
+    "hint": "Both pointers point to index 1, so each loop iteration reads `v[1 + i]`, multiplies by `-2.0f`, and writes right back to that same slot without touching the neighbors.",
+    "check": "The array finishes as `[90, −4, 2, −8, 91]`. The three middle entries hold the scaled products, while the two outer guard values (`90` and `91`) stay untouched."
   },
   "0/4": {
-    "prompt": "A list has 19 slots, numbered 0 through 18. Assign them to eight workers in a repeating order. Worker 0 gets slot 0, worker 1 gets slot 1, and so on through worker 7. Start again with worker 0 for the next slot. Which slots belong to worker 2? Then try workers 0 and 7.",
-    "hint": "Start at slot 2. Before worker 2 gets another slot, every other worker gets a turn. How far along the list will that put worker 2?",
-    "check": "Worker 2 gets slots 2, 10 and 18. Worker 0 gets 0, 8 and 16. Worker 7 gets 7 and 15. To turn the pattern into a loop, start at the worker’s own number, advance by eight slots each time, and stop before slot 19. Each round assigns one successive slot to each worker until the list ends."
+    "prompt": "Suppose an array has 19 slots (`0..18`) and you deal them out round-robin to 8 workers: worker 0 gets slot 0, worker 1 gets slot 1, …, worker 7 gets slot 7, then worker 0 gets slot 8, and so on. Which slots go to worker 2? Now list the slots for worker 0 and worker 7.",
+    "hint": "Start at the worker’s own ID. After taking one slot, all 7 other workers take a turn before this worker goes again—so how much does the index jump each step?",
+    "check": "Worker 2 gets slots `2, 10, 18`; worker 0 gets `0, 8, 16`; worker 7 gets `7, 15`. As a loop, start at `i = worker_id`, increment by `8` each pass, and stop when `i >= 19`. This pattern is called a grid-stride loop."
   },
   "1/0": {
-    "prompt": "In the CPU coverage study add `{9, 2}` to the shape list in main. Predict the number of blocks and inactive threads. Find the block and local coordinates of pixel (8, 1), then rerun `-Study coverage`.",
-    "hint": "Use the file’s 4 × 2 blocks. Integer division and remainder reverse the block/local calculation.",
-    "check": "Three blocks launch 24 threads for 18 pixels, leaving six inactive. Pixel (8, 1) is flat index 17, owned by block (2, 0), local thread (0, 1)."
+    "prompt": "In the CPU coverage study, add `{9, 2}` (width 9, height 2) to the shape list in `main`. Predict how many `4 × 2` blocks launch and how many threads fall out of bounds, calculate the block coordinates and local thread coordinates of pixel `(8, 1)`, and rerun `-Study coverage`.",
+    "hint": "With `4 × 2` blocks, divide pixel coordinates by block dimensions (integer division) to get block coordinates, and take the remainder (`%`) to get local thread coordinates.",
+    "check": "Three blocks launch `24` threads to cover `18` pixels, leaving `6` out-of-bounds threads. Pixel `(8, 1)` sits at flat index `17`, handled by block `(2, 0)` and local thread `(0, 1)`."
   },
   "1/1": {
-    "prompt": "Design a single warp load in which every two neighboring lanes request the same float. Begin at aligned-array element 7. Write the lane-to-element formula, then count distinct elements and touched sectors.",
-    "hint": "Use integer division by two. Eight aligned consecutive floats share a 32-byte sector.",
-    "check": "The index is 7 + lane / 2. The 32 lanes request 16 distinct elements, indices 7 through 22, spanning sectors 0, 1 and 2. This predicts requests for this instruction."
+    "prompt": "Design a single warp load (32 lanes, numbered `0..31`) on an aligned `float` array where every consecutive pair of lanes (`0 & 1`, `2 & 3`, etc.) reads the same float, starting at array index `7`. Write the formula from `lane` to array index, then count how many distinct floats are loaded and how many 32-byte sectors the warp touches.",
+    "hint": "Integer division `lane / 2` groups lanes in pairs. On an aligned float array, 8 consecutive floats fit inside each 32-byte sector (`0..7`, `8..15`, `16..23`).",
+    "check": "The index formula is `7 + lane / 2`. The 32 lanes read `16` distinct floats (`indices 7..22`), touching `3` sectors: sector 0 (index 7), sector 1 (`8..15`), and sector 2 (`16..22`)."
   },
   "1/2": {
-    "prompt": "A trace has identical GPU kernel times of 3 ms for all 12 frames. Eleven displayed frames take 6 ms each and one takes 34 ms. Write a two-line performance report giving typical frame time and observed throughput. Mark which time interval a GPU-only optimization could change.",
-    "hint": "Add the twelve displayed durations before dividing the number of frames by the elapsed seconds. A median uses the middle observations.",
-    "check": "The median displayed frame is 6 ms. The whole sequence takes 100 ms and sustains 120 FPS. The kernel accounts for 3 ms of the 34 ms frame. Its timing alone cannot identify the reason for the spike."
+    "prompt": "A 12-frame capture shows an identical `3 ms` GPU kernel time on every frame, while the displayed host frame times are eleven `6 ms` frames and one `34 ms` frame. Write a two-line summary reporting the median frame time and overall throughput (FPS), and state how much of the `34 ms` spike a GPU-only kernel speedup could touch.",
+    "hint": "Sum all 12 displayed frame times to get total elapsed seconds before computing FPS. For the median of 12 sorted values, take the middle values.",
+    "check": "Median frame time is `6 ms`, and total elapsed time is `100 ms`, giving `120 FPS`. The GPU kernel is only `3 ms` of that `34 ms` hitch, so GPU kernel timing alone cannot explain the other `31 ms`."
   },
   "1/3": {
-    "prompt": "Adapt the merge idea to compute the maximum of [−4, −9, −2, −8, −5] in a tree. Sketch rounds or use a scratch copy of `balanced`. Test what happens if you pad to eight with zeros.",
-    "hint": "Carry a lone child forward, or choose a padding value no greater than any legal input. Every internal node chooses the larger of its two children.",
-    "check": "The first three survivors are −4, −2 and −5, then −2 and −5, then −2. Zero padding gives a spurious answer of 0."
+    "prompt": "Adapt the binary reduction tree to compute the maximum of `[−4, −9, −2, −8, −5]`. Sketch each round by hand (or try it in a scratch copy of `balanced`), then check what happens if you pad the input up to 8 elements using `0`.",
+    "hint": "Either pass an unpaired element straight up to the next round, or pad with a value smaller than any legal input (such as `-INFINITY` or `INT_MIN`). Each internal node keeps the larger of its two inputs.",
+    "check": "Without zero padding, round 1 produces `−4, −2, −5`, round 2 produces `−2, −5`, and round 3 returns `−2`. Padding with `0` breaks the max reduction and returns a wrong answer of `0`."
   },
   "1/4": {
-    "prompt": "Make a shape that reveals a bad transpose even when every destination remains inside the allocation. Use the starter’s wrong formula on a 3-row, 2-column input and build the visit counts for destination slots 0 through 5.",
-    "hint": "Enumerate source positions in row-major order. A collision and an untouched slot can coexist with every write in bounds.",
-    "check": "Targets are 0, 2, 1, 3, 2, 4. Slot 2 is written twice and slot 5 is untouched. A bounds-only checker misses both. The correct transpose is [1, 3, 5, 2, 4, 6]."
+    "prompt": "Find a non-square shape where the starter’s buggy transpose writes every output inside the allocated buffer yet still corrupts the result. Trace the buggy index formula on a 3-row, 2-column input `[1, 2, 3, 4, 5, 6]` and tally how many writes hit each destination index `0..5`.",
+    "hint": "Step through the 6 source entries in row-major order and evaluate the starter’s destination formula for each. Watch for one index getting written twice while another stays untouched.",
+    "check": "The buggy destinations are `0, 2, 1, 3, 2, 4`: index `2` is written twice and index `5` is never written at all. A bounds-only checker (`memcheck`) misses this completely. The true transpose is `[1, 3, 5, 2, 4, 6]`."
   },
   "2/0": {
-    "prompt": "Use two queries, [1, 0] and [0, 1], against three gallery rows, [2, 0], [4, 0] and [0, 3], numbered from zero. If two gallery rows tie for the highest cosine score, choose the lower row number. Write the two-by-three score table and select a winner for each query.",
-    "hint": "Positive multiples point in the same direction. The explorer breaks ties in favor of the earliest row.",
-    "check": "The score rows are [1, 1, 0] and [0, 0, 1]. The winners are rows 0 and 2. A tie can preserve every score and still affect the predicted label if the tied images carry different labels."
+    "prompt": "Score two queries (`[1, 0]` and `[0, 1]`) against three gallery rows numbered `0..2`: `[2, 0]`, `[4, 0]`, and `[0, 3]`. Use cosine similarity and break exact ties by picking the lower gallery row index. Write the `2 × 3` score matrix and pick the winning gallery row for each query.",
+    "hint": "Scaling a vector by a positive constant keeps its direction unchanged, so `[2, 0]` and `[4, 0]` have the same cosine similarity with `[1, 0]`.",
+    "check": "The cosine score rows are `[1, 1, 0]` and `[0, 0, 1]`, giving winners row `0` and row `2`. Notice that an exact score tie can flip the predicted digit label depending on tie-breaking if the two tied rows have different labels."
   },
   "2/1": {
-    "prompt": "Enter 2,3,6,3 in the chain explorer. For each parenthesization, count scalar multiplications and the number of elements in the intermediate matrix. Does minimizing multiplication count select the same order as minimizing intermediate size? Resolve any tie, explain the basis for your choice, then check the explorer.",
-    "hint": "Compute both temporary shapes and include the cost of the final multiply. Count float cells rather than bytes first.",
-    "check": "Both orders cost 72 scalar multiplications. AB has 12 cells and BC has 9. Smaller storage breaks an arithmetic tie here. A measured timing is still needed to make a speed claim."
+    "prompt": "Enter dimensions `2, 3, 6, 3` in the matrix-chain explorer (representing matrices of shape `2×3`, `3×6`, and `6×3`). For both `(AB)C` and `A(BC)`, compute the scalar multiplications and the number of elements in the intermediate matrix. Does minimizing multiplies break the tie? Decide which order you’d pick and why, then check the explorer.",
+    "hint": "Write down the intermediate shape for each order, add the multiplies for both steps, and count how many floats the intermediate matrix has to store.",
+    "check": "Both orders cost `72` scalar multiplications, while `AB` has `12` intermediate entries and `BC` has only `9`. Smaller intermediate storage breaks the arithmetic tie, though you’d still need real timings to claim one runs faster."
   },
   "2/2": {
-    "prompt": "For a 17 × 3 result with K = 18 and 16 × 16 tiles, focus only on the bottom output block and the final K chunk. Which A and B entries can its workers load from global memory? Count them and predict its valid stores.",
-    "hint": "This block covers rows 16–31, columns 0–15, and the final chunk covers inner indices 16–31. Intersect each interval with the matrix extents.",
-    "check": "The final chunk loads two real A elements (row 16, k = 16,17) and six real B elements (two k rows times three columns). The block eventually stores three outputs. All 256 threads must still reach each barrier."
+    "prompt": "Consider a `17 × 3` output matrix with `K = 18` using `16 × 16` tiles. Focus only on the bottom output block and the final `K` chunk. Which valid entries of `A` and `B` does that block load from global memory, how many real entries is that, and how many valid `C` elements does it store at the end?",
+    "hint": "The bottom block spans rows `16..31` and columns `0..15`, while the final `K` chunk spans `k = 16..31`. Intersect those ranges with the actual matrix dimensions (`17 × 18` and `18 × 3`).",
+    "check": "The final chunk loads `2` real entries from `A` (row `16`, `k = 16, 17`) and `6` real entries from `B` (`k = 16, 17` across columns `0, 1, 2`), and the block writes `3` valid outputs (`row 16, cols 0..2`). All 256 threads in the block must still hit every `__syncthreads()` barrier."
   },
   "2/3": {
-    "prompt": "At N = 49 launch exactly two 16-thread-wide blocks along x. Each thread computes two columns. Draw a tally of how many times each output column is visited if the blocks start 16 columns apart but each owns 32 columns. Then correct the launch on paper.",
-    "hint": "With two blocks initially, the wrong start formula gives starts 0 and 16. Derive both the start spacing and block count from the actual columns owned per block.",
-    "check": "The two incorrect intervals cover 0–31 and 16–47. Columns 16–31 are duplicated and 48 is missing. Starts 0 and 32 with two blocks cover 0–48 once after guarding invalid columns."
+    "prompt": "For an output width `N = 49`, suppose you launch two `16`-thread-wide blocks along `x` where each thread computes `2` columns (so each block owns `32` columns). Sketch how many times each column `0..48` gets computed if the kernel mistakenly spaces block starts `16` columns apart instead of `32`. Then write the corrected starting-column formula on paper.",
+    "hint": "With a 16-column stride, block 0 starts at column `0` and block 1 starts at column `16`, even though each block covers 32 columns. Base both the block stride and grid width on the full 32 columns owned per block.",
+    "check": "The buggy launch covers columns `0..31` and `16..47`: columns `16..31` are computed twice and column `48` is skipped completely. Spacing block starts by `32` gives starts `0` and `32`, covering `0..48` exactly once (with a `col < 49` bounds guard)."
   },
   "2/4": {
-    "prompt": "Supply a minimal library-layout test where element order matters. For A = [[1, 2], [0, 1]] and B = [[3, 4], [0, 2]], write AB and BA. Which linear arrangement of four floats must the row-major output buffer contain?",
-    "hint": "Trace the upper-right cell in each product. Relate C in row-major storage to the library’s column-major view of C transposed.",
-    "check": "AB is [[3, 8], [0, 2]] and BA is [[3, 10], [0, 2]]. The expected row-major buffer is [3, 8, 0, 2]. Matching dimensions and the diagonal alone would miss a swapped product."
+    "prompt": "Build a minimal `2 × 2` test that catches a row-major vs. column-major swap in a GEMM library call. For `A = [[1, 2], [0, 1]]` and `B = [[3, 4], [0, 2]]`, compute both `AB` and `BA`. What flat 4-float array must a row-major output buffer contain for `AB`?",
+    "hint": "Check the upper-right entry of `AB` vs. `BA`. Remember that row-major `C` looks like column-major `Cᵀ` to cuBLAS, so swapping `A` and `B` accidentally computes `BA`.",
+    "check": "`AB = [[3, 8], [0, 2]]` and `BA = [[3, 10], [0, 2]]`, so the flat row-major output buffer for `AB` must be `[3, 8, 0, 2]`. Checking only dimensions or diagonal entries would miss a swapped product."
   },
   "3/0": {
-    "prompt": "Encode the directed weighted edges 0→2 with weight 5 and 2→0 with weight −2 on three nodes as CSR. Multiply by [4, 8, 3]. Then explain what an all-ones input would measure on this graph.",
-    "hint": "The middle row is empty. Put each edge into only its source row and keep its sign.",
-    "check": "Offsets are [0,1,1,2], columns [2,0], values [5,−2]. The requested product is [15,0,−8]. An all-ones input gives outgoing weight sums [5,0,−2]."
+    "prompt": "Encode a 3-node directed weighted graph with edges `0 → 2` (weight `5`) and `2 → 0` (weight `−2`) in CSR format (`row_offsets`, `columns`, `values`). Multiply that CSR matrix by `x = [4, 8, 3]`, then explain what multiplying by `x = [1, 1, 1]` computes on this graph.",
+    "hint": "Row 1 has no outgoing edges, so it is empty. Place each directed edge only in its source vertex’s row and keep its sign.",
+    "check": "`row_offsets = [0, 1, 1, 2]`, `columns = [2, 0]`, `values = [5, −2]`. Multiplying by `[4, 8, 3]` yields `[15, 0, −8]`. Multiplying by `[1, 1, 1]` returns each vertex’s sum of outgoing edge weights: `[5, 0, −2]`."
   },
   "3/1": {
-    "prompt": "On a row with 10 entries, model widths 8 and 32. Count useful lane-iterations and launched lane-iterations across the row’s multiplication loop for each. Explain one reason the utilization estimate could fail to predict elapsed time.",
-    "hint": "Each group takes ceil(10 / width) rounds. Count the multiplication work separately from the shuffle reduction.",
-    "check": "Both do 10 useful products. Width 8 offers 16 slots across two rounds (62.5%); width 32 offers 32 slots in one round (31.25%). The smaller group needs an extra loop round and the shuffle and memory costs also matter."
+    "prompt": "Take a single sparse row with `10` nonzeros and compare two cooperative group sizes: `width = 8` threads vs. `width = 32` threads. Count the useful lane-iterations and total launched lane-iterations in the multiply loop for each width, then give one reason lane utilization alone might not predict which runs faster.",
+    "hint": "A group of size `width` takes `ceil(10 / width)` loop rounds. Count the multiply loop separately from the final warp-shuffle reduction.",
+    "check": "Both do `10` useful products. Width 8 takes 2 rounds (`16` lane-slots, `62.5%` active), while width 32 takes 1 round (`32` lane-slots, `31.25%` active). Even with higher utilization, width 8 needs an extra loop iteration, and memory coalescing plus shuffle cost also affect wall-clock time."
   },
   "3/2": {
-    "prompt": "Design a stable two-bin partition on paper using the same exclusive prefixes. For letters A to E and flags [0,1,0,1,1], place the false items first and the true items second, preserving order within each bin. Give a destination rule for both cases.",
-    "hint": "Let `p` count earlier true items and `z` be the total number of false items. Among the first i items, i − p are false.",
-    "check": "For a false item use i − p, for a true item use z + p. The input indices map to [0,2,1,3,4] and the final order is A,C,B,D,E."
+    "prompt": "Use the same exclusive-scan idea to design a stable two-way partition on paper. Given letters `[A, B, C, D, E]` and boolean flags `[0, 1, 0, 1, 1]`, place all `0` (false) items first and all `1` (true) items second, keeping original order inside each group. Write the destination index formula for both cases.",
+    "hint": "Let `p` be the exclusive scan of the flags at index `i` (the number of earlier `1`s), and let `z` be the total count of `0`s in the whole array. Among the `i` elements before index `i`, exactly `i − p` of them are `0`s.",
+    "check": "A `0` item at index `i` writes to `i − p`, and a `1` item writes to `z + p`. Here `z = 2`, the input indices map to destinations `[0, 2, 1, 3, 4]`, and the partitioned output is `[A, C, B, D, E]`."
   },
   "3/3": {
-    "prompt": "Debug an integer reduction that discards its partial final block. Construct a one-dimensional test with 256 zeros followed by one ink value of 7. Predict the reported totals for a correct grid and for a grid rounded down. Give a second input exposing accidental double counting of that tail.",
-    "hint": "Use the lab’s 256-thread blocks and add a nonzero value only where coverage or ownership differs.",
-    "check": "The correct total is 7; a one-block launch gives 0. For a second test, use 258 values with the final two both equal to 3 and everything else zero. The correct total is 6; summing that entire tail twice gives 12."
+    "prompt": "Design two tiny 1D test arrays to catch bugs in an integer reduction that uses `256`-thread blocks. First, build a `257`-element array of `256` zeros followed by a single `7`, and predict the sum from a correct grid vs. a grid that rounded its block count down. Second, construct an array that exposes accidentally double-counting the final partial block.",
+    "hint": "Put nonzero values only in the tail beyond index `255` so any dropped or double-counted tail stands out immediately.",
+    "check": "On the `257`-element test, the true sum is `7`, while a 1-block rounded-down grid returns `0`. For double counting, use `258` elements with `3` in the last two slots and `0` everywhere else: the true sum is `6`, whereas summing the tail twice returns `12`."
   },
   "3/4": {
-    "prompt": "Two formats have different fixed conversion costs. A costs 1 ms to prepare and 0.8 ms per call. B costs 4 ms and 0.2 ms per call. A shared file parse adds 7 ms. Derive the first profitable call count for B, then change the workload so every call rereads and reconverts its input.",
-    "hint": "Write both totals under each reuse policy. Only preparation that survives to the next call can be amortized.",
-    "check": "With one preparation, the curves tie at five calls (12 ms each), and B wins at six. With fresh preparation per call, each call costs 8.8 ms for A and 11.2 ms for B. A stays faster for every positive call count."
+    "prompt": "Compare two sparse formats with different conversion costs: Format A takes `1 ms` to convert and `0.8 ms` per SpMV call; Format B takes `4 ms` to convert and `0.2 ms` per SpMV call. Reading the matrix from disk takes `7 ms` for both. First, find the smallest number of SpMV calls where Format B beats Format A if you read and convert once. Second, repeat if every call has to reread and reconvert from scratch.",
+    "hint": "Write total time as `setup + calls × per_call` for each policy. Only work done once can be amortized across repeated calls.",
+    "check": "With one-time setup, both formats tie at `5` calls (`12 ms` each: `7 + 1 + 4` vs. `7 + 4 + 1`), so Format B wins starting at call `6`. If you reread and reconvert every time, each call costs `8.8 ms` for A vs. `11.2 ms` for B, so A stays faster for every call count."
   },
   "4/0": {
-    "prompt": "A 64 × 32 shot contains three worms, each built from 24 links. The director doubles only the height and halves the width. Predict what changes in the exhaustive candidate count, then name a reason GPU time could still change.",
-    "hint": "Count pixels first. A work count says how many pairs reach the candidate routine.",
-    "check": "Both frames have 2,048 pixels and 72 links, giving 147,456 pairs in either orientation. The new aspect ratio can change coverage and how many candidates survive later tests."
+    "prompt": "A `64 × 32` frame contains `3` worms with `24` segments each. Suppose you reshape the image to `32 × 64` (halving the width and doubling the height). How does the brute-force pixel–segment test count change, and why might the GPU runtime still differ?",
+    "hint": "Count total pixels first—total brute-force pairs is just `pixels × segments`.",
+    "check": "Both frames have `2,048` pixels and `72` segments, so both run `147,456` brute-force pairs. GPU time can still change because changing the aspect ratio changes how many worms cover each pixel and how tiles map onto the scene."
   },
   "4/1": {
-    "prompt": "A vertical capsule goes from (2,2) to (2,6) with radius 1. Derive the closest point for (2,0.9) and (2,1). Predict their classifications. Swap the endpoints and check both again.",
-    "hint": "For a point beyond an endpoint, compare the squared distance to the nearest endpoint with the squared radius.",
-    "check": "Both closest points are (2,2). Squared distances are 1.21 and 1, so the first sample misses and the rim sample hits. Reversing the endpoints preserves both results."
+    "prompt": "A vertical capsule runs from `(2, 2)` to `(2, 6)` with radius `1`. Find the closest point on the centerline segment for pixel centers `(2, 0.9)` and `(2, 1)`, and determine whether each hits or misses. Then swap the two endpoints (`(2, 6)` to `(2, 2)`) and verify both results stay identical.",
+    "hint": "For points past either end of the segment, clamping `t` to `[0, 1]` snaps the closest point onto that endpoint, so you just compare squared distance to `radius²`.",
+    "check": "Both pixels snap to endpoint `(2, 2)`. Their squared distances are `1.21` and `1.0`, so `(2, 0.9)` misses and `(2, 1)` hits right on the rim. Swapping endpoints leaves both results unchanged."
   },
   "4/2": {
-    "prompt": "A 16 × 16 pixel block starts at (16,16) in a 17 × 19 image. Identify the thread coordinates allowed to store a pixel. Decide which threads may skip the barrier that protects a new candidate batch.",
-    "hint": "Convert local lane coordinates to image coordinates. A valid row can still have fifteen columns outside the image.",
-    "check": "Three lanes store pixels, at local (0,0), (0,1) and (0,2). All 256 threads participate in the barrier in this cooperative kernel."
+    "prompt": "In a `17 × 19` image, look at the `16 × 16` thread block whose top-left corner sits at pixel `(16, 16)`. Which local thread coordinates `(tx, ty)` are allowed to write an output pixel, and which threads may skip the `__syncthreads()` barrier that guards each shared-memory candidate batch?",
+    "hint": "Add `(16, 16)` to `(tx, ty)` and check `x < 17` and `y < 19`. Remember what happens in CUDA if only some threads in a block reach `__syncthreads()`.",
+    "check": "Only 3 threads write pixels: local `(0, 0)`, `(0, 1)`, and `(0, 2)` (pixels `(16, 16)`, `(16, 17)`, and `(16, 18)`). Zero threads may skip the barrier—all `256` threads in the block must reach `__syncthreads()`."
   },
   "4/lighting": {
-    "prompt": "A reflection ray intersects three bay slabs over distances [1,8], [4,10] and [3,5]. Work out what happens for a current closest hit at 6, then at 3. Where would reusing the camera ray’s earlier decision go wrong?",
-    "hint": "For each ray, intersect its three intervals first. Compare the entry with the distance to beat on that ray.",
-    "check": "The reflection ray can enter the bay over [4,5]. At 6 an object in the bay could win. At 3 the bay cannot contribute a closer hit. A different ray origin or direction has different slab intervals."
+    "prompt": "A reflection ray crosses a bay’s three axis slabs over intervals `[1, 8]`, `[4, 10]`, and `[3, 5]`. Should the renderer test objects inside this bay if the ray’s closest hit so far is at distance `6`? What if the closest hit so far is at distance `3`? Explain why reusing the primary camera ray’s cull decision would fail.",
+    "hint": "Intersect the three slab intervals first (`[max(mins), min(maxes)]`), then compare the box entry distance against the reflection ray’s current closest hit.",
+    "check": "The reflection ray is inside the bay over `[4, 5]`. With a closest hit at `6`, the bay can still hold a closer object (`4 < 6`), so you must test it. With a closest hit at `3`, the bay starts farther away (`4 > 3`), so you can skip it. A camera ray has a completely different origin and direction, so its slab intervals don’t apply to the reflection ray."
   },
   "4/3": {
-    "prompt": "A one-row image has 17 pixels. Its first 16-pixel tile keeps 3 candidate segments. The final tile contains just pixel 16 and keeps 12 candidates. Each real pixel tests every segment in its tile’s list. Count the detailed tests and calculate how many tests you would wrongly predict by treating both tiles as full.",
-    "hint": "Multiply each list length by the real pixels in its own tile.",
-    "check": "The true count is 16 × 3 + 1 × 12 = 60. Charging both as full tiles predicts 240. Bounding-box classifications are a separate cost."
+    "prompt": "A 1-row image is `17` pixels wide, split into two `16`-pixel tiles. Tile 0 (pixels `0..15`) keeps `3` candidate segments after culling, while Tile 1 (just pixel `16`) keeps `12` candidates. If every active pixel tests every candidate in its tile, how many exact pixel–segment tests run in total, and how many tests would you overpredict if you treated both tiles as full 16-pixel tiles?",
+    "hint": "Multiply each tile’s candidate count by the number of real in-bounds pixels in that tile, not by 16.",
+    "check": "Actual exact tests: `16 × 3 + 1 × 12 = 60`. Treating both tiles as full predicts `16 × 3 + 16 × 12 = 240`—an overprediction of `180` tests (bounding-box checks are counted separately)."
   },
   "4/creature": {
-    "prompt": "A moving five-link group has predicted x bounds [4,10], including link radii. All five links translate +3 in x in the new frame. Test whether keeping the old box can safely cull a ray that travels parallel to the y-axis at x = 12.",
-    "hint": "List the old and current x intervals. A box rejection must rule out every enclosed link at the frame being rendered.",
-    "check": "The new bounds are [7,13]. The old box rejects x = 12 while a current link could be hit there. Recompute or expand a conservative motion bound before culling."
+    "prompt": "A moving 5-link strand group has an old x-interval `[4, 10]` (already padded by link radius). On the next frame, all 5 links shift `+3` in x. Show whether keeping the stale bounding box can safely cull a ray traveling parallel to the y-axis at `x = 12`.",
+    "hint": "Compute the group’s true new x-interval after the `+3` shift. A bounding box can only cull a ray if none of the links at the current frame can touch that ray.",
+    "check": "After moving `+3`, the group spans `[7, 13]`, so a link can now hit the ray at `x = 12`. The stale box `[4, 10]` misses `x = 12` and falsely culls a real hit. Always refit (or conservatively expand) bounds before tracing."
   },
   "4/4": {
-    "prompt": "Two 20-frame logs in ms contain A = nineteen 7s and one 35, B = twenty 8s. Which wins on median, nearest-rank p95, worst frame and total-time throughput? Decide which evidence you would show beside a smoothness claim.",
-    "hint": "Write down the 19th and 20th sorted durations before dividing frame count by elapsed time.",
-    "check": "A wins median and p95, both 7 vs 8 ms. B wins worst frame, 8 vs 35 ms, and throughput, 125 vs about 119 FPS. The single hitch is visible in the maximum and raw samples."
+    "prompt": "Compare two 20-frame timing logs in milliseconds: Renderer A has nineteen `7 ms` frames and one `35 ms` spike; Renderer B has twenty steady `8 ms` frames. Which wins on median, nearest-rank p95, worst frame (max), and average FPS? What numbers would you show to back up a “smoother frame pacing” claim?",
+    "hint": "With 20 sorted frames, nearest-rank p95 is entry `ceil(0.95 × 20) = 19` and worst frame is entry `20`. Compute FPS from `20 frames / total seconds`.",
+    "check": "A wins median and p95 (`7 ms` vs. `8 ms`). B wins worst frame (`8 ms` vs. `35 ms`) and average throughput (`125 FPS` vs. `~119 FPS`, since A totals `168 ms` vs. B’s `160 ms`). Always report worst-frame max and raw traces alongside percentiles so a single hitch can’t hide."
   },
   "5/0": {
-    "prompt": "Start with zero boundary values and zero pressure everywhere on a 5 × 5 grid. Put the only nonzero source, −8, one interior cell to the left of center. Under the lesson’s update rule, what are the source pressure and center pressure after one and two Jacobi sweeps?",
-    "hint": "Each new cell reads four old neighbors and its own source. The forcing stays in place.",
-    "check": "After sweep one the source is −2 and the center is 0. After sweep two the source stays −2 and the center becomes −0.5. The boundary stays zero."
+    "prompt": "Start with pressure `0` everywhere and pinned zero boundaries on a `5 × 5` grid. Place a single nonzero source of `−8` at the interior cell immediately to the left of center. Using the Jacobi rule `p_new = (sum(neighbors) + source) / 4`, find the pressure at both the source cell and the center cell after sweep 1 and after sweep 2.",
+    "hint": "Every cell reads the four neighbors from the previous sweep plus its own constant `source` value (the source stays `−8` on every sweep).",
+    "check": "After sweep 1, the source cell is `−2` and the center cell is `0`. After sweep 2, the source cell stays `−2` (its neighbors were still `0` after sweep 1) and the center cell becomes `(−2 + 0 + 0 + 0 + 0) / 4 = −0.5`, while boundary cells stay `0`."
   },
   "5/1": {
-    "prompt": "An interior rectangular tile with all halo sites in bounds produces 8 × 4 outputs. Before benchmarking, count the distinct old-pressure positions for a one-sweep five-point footprint. Compare with a rectangular shared allocation and identify the unused positions.",
-    "hint": "Draw one halo strip on each side. Count the corners separately.",
-    "check": "32 + 2 × 8 + 2 × 4 = 56 positions. The 10 × 6 rectangle has 60 slots, including four unused corners."
+    "prompt": "An interior `8 × 4` output tile has all its neighbors in bounds. For a single 5-point Jacobi sweep, how many distinct old-pressure cells are actually read? Compare that against allocating a `10 × 6` rectangular shared-memory block and identify which slots go unused.",
+    "hint": "Count the `8 × 4` interior plus the 1-cell strips on all four sides (top, bottom, left, right), leaving the four corners out.",
+    "check": "The 5-point stencil actually reads `32 + 2×8 + 2×4 = 56` cells. A `10 × 6` shared-memory rectangle reserves `60` slots, so the `4` corner slots are never read."
   },
   "5/2": {
-    "prompt": "At a target relative residual of 0.05, three runs give (sweeps, residual, total ms) = (10, 0.08, 0.4), (14, 0.049, 0.7), (20, 0.03, 1.1). Which of the measured runs meets the target in the least total time? What additional sweep counts would you test before calling that the first passing count?",
-    "hint": "Distinguish the counts tested from the counts between them.",
-    "check": "Fourteen sweeps is the cheapest passing run among these measurements. Test 11 through 13 to look for an earlier passing count in that interval. To claim the first crossing from the start, inspect the earlier history too. Time each passing configuration before claiming it is the fastest."
+    "prompt": "Your target relative residual is `0.05`. Three runs report `(sweeps, residual, total ms)` as `(10, 0.08, 0.4)`, `(14, 0.049, 0.7)`, and `(20, 0.03, 1.1)`. Which measured run meets the target in the least time, and what extra sweep counts should you test before claiming it is the smallest passing sweep count?",
+    "hint": "Look at the untested gap between the failing run (`10`) and the passing run (`14`).",
+    "check": "`14` sweeps (`0.7 ms`) is the fastest passing run measured so far. To check whether the solver actually crossed `0.05` earlier in that gap, test `11, 12, and 13` sweeps (and inspect earlier sweeps if you want to prove it’s the first crossing overall), timing each passing run directly."
   },
   "5/3": {
-    "prompt": "Three closed unit-width cells have face velocities [0,3,1,0]. Find their divergences and their sum. Add seven units of pressure everywhere. What changes in a pressure-gradient correction?",
-    "hint": "Use right-face velocity minus left-face velocity for each cell.",
-    "check": "The divergences are +3, −2 and −1. They sum to zero because interior flux cancels. A uniform pressure shift changes no face gradient and therefore no corrected velocity."
+    "prompt": "Three closed 1D unit-width cells have face velocities `[0, 3, 1, 0]` from left outer wall to right outer wall. Compute each cell’s divergence (`right − left`) and sum all three divergences. Then add `7` to every cell’s pressure—how does that change the pressure-gradient velocity update?",
+    "hint": "Cell 0 uses faces `0` and `3`, cell 1 uses `3` and `1`, and cell 2 uses `1` and `0`.",
+    "check": "The cell divergences are `+3`, `−2`, and `−1`, summing to `0` because every interior face velocity cancels between its two neighboring cells. Adding a constant `7` to every pressure leaves all pressure differences `(p_right − p_left)` identical, so the velocity correction doesn’t change at all."
   },
   "5/4": {
-    "prompt": "Run python -B labs/flow/vortex_refinement.py --sizes 24 48 --nu 0.2 --time 0.5. Predict the analytic amplitude and energy ratios before you inspect the first output line. Explain why they match the original test with a different viscosity.",
-    "hint": "Check the product νt in each exponential. RMS discretization errors are separate measurements.",
-    "check": "Both runs have νt = 0.1. The analytic amplitude ratio is exp(−0.2) ≈ 0.81873 and the energy ratio exp(−0.4) ≈ 0.67032. The requested run prints both."
+    "prompt": "Run `python -B labs/flow/vortex_refinement.py --sizes 24 48 --nu 0.2 --time 0.5`. Before looking at the first output line, predict the exact analytic amplitude ratio and energy ratio, and explain why they match the earlier run that used a different viscosity (`ν = 0.1`, `t = 1.0`).",
+    "hint": "Both analytic decay formulas depend on the product `νt` inside the exponent. Numerical RMS errors depend on grid spacing and time step separately.",
+    "check": "Both runs have the same product `νt = 0.1`, so the analytic amplitude ratio is `exp(−0.2) ≈ 0.81873` and the analytic energy ratio is `exp(−0.4) ≈ 0.67032`—matching the script’s printed header."
   },
   "6/0": {
-    "prompt": "A compressed stitch has endpoints x = 0 and 1, rest length 2, and equal inverse masses. Derive one full isolated correction. Predict the positions again if the right endpoint is pinned.",
-    "hint": "The extension d − L is negative. Keep the midpoint fixed in the equal-mass case.",
-    "check": "The free pair moves apart to −0.5 and 1.5. With the right endpoint pinned at 1 the left moves to −1. Both results restore distance 2."
+    "prompt": "A compressed cloth edge has endpoints at `x = 0` and `x = 1`, rest length `2`, and equal inverse masses. Compute the new endpoint positions after one full undamped distance correction. Then recompute the positions if the right endpoint (`x = 1`) is pinned.",
+    "hint": "The edge is compressed (`d − L = 1 − 2 = −1`), so free endpoints push apart symmetrically around their midpoint (`0.5`).",
+    "check": "When both endpoints are free, they push apart to `x = −0.5` and `x = 1.5`. When the right endpoint is pinned at `1`, the left endpoint absorbs the full correction and moves to `x = −1`. Both restore length `2`."
   },
   "6/1": {
-    "prompt": "A chain has edges (0,1), (1,2), (2,3), (3,4). Schedule two batches of in-place edge updates and identify the synchronization point. Then insert edge (0,2) and test your schedule.",
-    "hint": "Within one batch, compare endpoint IDs pairwise.",
-    "check": "One schedule is {(0,1),(2,3)} followed by {(1,2),(3,4)}. On the GPU, launch one kernel per batch in the same stream to order updates across the mesh. Adding (0,2) makes three edges meet at vertex 2, so at least three batches are required. The new edge can occupy the third batch by itself."
+    "prompt": "Consider a 5-vertex chain with edges `(0, 1)`, `(1, 2)`, `(2, 3)`, and `(3, 4)`. Split these edges into two conflict-free batches for safe in-place updates and state where you must synchronize. Then add a fifth edge `(0, 2)` and check whether two batches still work.",
+    "hint": "Two edges can run in the same in-place batch only if they share no vertices.",
+    "check": "One valid 2-batch schedule is `{(0, 1), (2, 3)}` followed by `{(1, 2), (3, 4)}`, launching one kernel per batch on the same stream so batch 1 finishes before batch 2 starts. Adding `(0, 2)` creates a triangle `(0, 1, 2)` where three edges meet at vertex 2, forcing at least `3` batches (with `(0, 2)` in batch 3)."
   },
   "6/2": {
-    "prompt": "A mesh stores 8 slots per vertex as 32-bit edge IDs. On a 5 × 4 intact grid with both diagonals in every cell, find the number of edges, filled slots and sentinel slots. How many bytes are reserved for the neighbor table?",
-    "hint": "Count horizontal and vertical edges separately, then two diagonals per cell. Each edge appears at both endpoints.",
-    "check": "There are 16 horizontal, 15 vertical and 24 diagonal edges, or 55 total. Of 160 slots, 110 hold IDs and 50 are sentinels. The reserved table uses 640 bytes."
+    "prompt": "A cloth mesh reserves `8` fixed slots per vertex to store 32-bit incident edge IDs. On an intact `5 × 4` vertex grid with horizontal, vertical, and both diagonal edges in every cell, count the total number of edges, filled slots, and empty sentinel slots. How many bytes does the neighbor table occupy?",
+    "hint": "Count horizontal edges (`4 × 4`), vertical edges (`5 × 3`), and cell diagonals (`2 × 4 × 3`) separately. Every edge fills 1 slot at each of its 2 endpoints.",
+    "check": "There are `16` horizontal, `15` vertical, and `24` diagonal edges (`55` total). Out of `20 × 8 = 160` slots, `110` hold edge IDs and `50` hold sentinels. At 4 bytes per 32-bit ID, the table takes `160 × 4 = 640` bytes."
   },
   "6/3": {
-    "prompt": "A stitch of rest length 8 evolves through lengths 9, 10, 10.5 and 8 over four steps. Use a strict 25% fracture threshold and mark the edge active or broken after each step.",
-    "hint": "Compute the ratio to the same rest length every time. A broken edge stays broken.",
-    "check": "It stays active at lengths 9 and 10, breaks at 10.5, and remains broken when the endpoints later return to length 8."
+    "prompt": "An edge with rest length `8` reaches lengths `9`, `10`, `10.5`, and `8` over four consecutive steps. Using a strict `25%` fracture rule (`strain > 0.25`), mark whether the edge is active or broken after each step.",
+    "hint": "Always divide `(length − 8)` by the original rest length `8`. Remember that once an edge breaks, it never heals.",
+    "check": "At `9` (`12.5%`) and `10` (`25%`, tied with the threshold), the edge stays active. At `10.5` (`31.25%`), it breaks. At step 4 (`8`), it remains broken even though the endpoints moved back together."
   },
   "6/textile": {
-    "prompt": "An artist marks a split at material coordinate (0.4, 0.6), initially displayed at pixel (250,110). Orbit the specimen and predict which coordinates can locate that split after the camera moves. Explain how you would distinguish sliding damage from a correct orbit.",
-    "hint": "Look for a neighboring stitch or calibration mark in both captures.",
-    "check": "The two material coordinates still identify the split; its screen coordinates can change or be hidden. Check that the same nearby stitch remains at the opening across both views."
+    "prompt": "An artist marks a cloth tear at material coordinate `(0.4, 0.6)`, which initially appears at screen pixel `(250, 110)`. If you orbit the camera around the swatch, which coordinate pair still locates that tear? How would you verify visually that the tear stays locked to the fabric instead of sliding across it?",
+    "hint": "Pick a visible landmark on the fabric right next to the tear—like an adjacent stitch or weave mark—and compare both camera views.",
+    "check": "Material coordinate `(0.4, 0.6)` still locates the tear, while its screen pixel changes (or moves out of view). Confirming that the exact same neighboring stitch borders the opening in both camera angles proves the tear is anchored to the cloth."
   },
   "6/4": {
-    "prompt": "A four-vertex mesh has one free vertex displaced by (0,0,0.04) and three unchanged vertices, including both pins. Both implementations have the same active flags. Calculate RMS position error, maximum position error, maximum pin drift and differing flags. Which vertex would you inspect first, and which comparison results led you to it?",
-    "hint": "Average squared displacement over all four vertex IDs before taking the square root.",
-    "check": "RMS position error is 0.02, maximum position error is 0.04, pin drift is zero and the flags agree. Investigate the discrepant free vertex’s inputs and first changed sweep."
+    "prompt": "Compare two 4-vertex cloth outputs: both have identical active-edge flags and identical positions on 3 vertices (including both pinned vertices), while 1 free vertex differs by `(0, 0, 0.04)`. Compute the RMS position error, max position error, max pin drift, and count of differing edge flags. Which vertex should you debug first, and which numbers point you there?",
+    "hint": "RMS averages the squared errors across all `4` vertices (`(0² + 0² + 0² + 0.04²) / 4`) before taking the square root.",
+    "check": "RMS position error is `0.02`, max position error is `0.04`, max pin drift is `0`, and differing edge flags is `0`. Because the pins and edge flags match, inspect that single mismatched free vertex—checking its incident edges and the first sweep where it diverges."
   },
   "7/0": {
-    "prompt": "Audit a bandwidth claim. A vector add processed one million FP32 elements in 0.06 ms. Your colleague reports 67 GB/s, counting only the output. Reconstruct their number, calculate useful bandwidth under the lab’s convention, and name the evidence needed to claim DRAM traffic.",
-    "hint": "Write a line for each input read and for the output write. Convert milliseconds to seconds before dividing.",
-    "check": "The output is 4 MB, giving about 66.7 GB/s. Both inputs plus the output total 12 MB, giving 200 GB/s. A DRAM-byte counter at the relevant memory boundary can distinguish physical traffic from these useful bytes."
+    "prompt": "Audit a bandwidth claim: a vector-add kernel processes `1,000,000` FP32 elements in `0.06 ms`, and a teammate reports `67 GB/s` by counting only the output array. Reproduce their `67 GB/s`, compute the full useful bandwidth under our lab’s read+write convention, and state what measurement you’d need to claim actual DRAM bandwidth.",
+    "hint": "Vector add reads two FP32 inputs (`A` and `B`) and writes one FP32 output (`C`) per element. Convert `0.06 ms` to `0.00006 s` before dividing.",
+    "check": "Counting only the `4 MB` output gives `4 MB / 0.00006 s ≈ 66.7 GB/s`. Counting two reads plus one write (`12 MB` total) gives `200 GB/s`. To claim physical DRAM bandwidth rather than algorithmic useful bandwidth, you need a hardware DRAM-byte counter from Nsight Compute."
   },
   "7/1": {
-    "prompt": "Two policy logs give predicted labels [2, 3, 7] and [2, 7, 3]. The true labels are [2, 3, 3]. Decide whether you would approve a policy that requires identical predictions. Defend the decision with two different counts.",
-    "hint": "Line up the rows by query ID. Score each policy against truth, then compare the policies with each other.",
-    "check": "Both policies get two labels right out of three, yet two of three predictions changed. The identical-prediction contract fails. The same technique applies to all 360 queries in your rankings log."
+    "prompt": "For three queries whose true digit labels are `[2, 3, 3]`, Policy A predicts `[2, 3, 7]` and Policy B predicts `[2, 7, 3]`. Would Policy B pass a requirement demanding identical predictions to Policy A? Justify your answer using both overall accuracy and per-query agreement.",
+    "hint": "Compare each policy against the ground-truth labels first, then compare Policy A and Policy B directly at each query index.",
+    "check": "Both policies score `2/3` correct against ground truth, yet they disagree on `2` of the `3` queries (`indices 1 and 2`). Policy B fails an identical-prediction requirement—and you can run this exact per-query diff across all 360 queries in your rankings log."
   },
   "7/2": {
-    "prompt": "With the lab’s idealized per-group scale, reconstruct sixteen identical values of 3. Then replace fifteen of them with zeros and repeat. Explain which information survives and whether the stored payload or scale byte count changed.",
-    "hint": "With a highest level of 6, the scale for a peak of 3 is 0.5. Zero is also an available level.",
-    "check": "The scale stays 0.5. The threes reconstruct as 6 × 0.5 and every zero reconstructs exactly. Both groups use eight payload bytes and one scale byte. A sparse group alone saves no bytes in this fixed layout."
+    "prompt": "Using the lab’s idealized per-group scaling (`max_level = 6`), quantize and reconstruct a 16-element group where every entry is `3`. Now change 15 of those entries to `0` (leaving one `3`) and repeat. What values survive accurately, and does the stored byte count for payload or scales change?",
+    "hint": "With peak magnitude `3` and max quantized level `6`, the group scale is `3 / 6 = 0.5`, and `0` is an exact quantized level.",
+    "check": "The scale stays `0.5` in both cases, so every `3` reconstructs exactly (`6 × 0.5`) and every `0` reconstructs exactly. Both groups still take `8` payload bytes (`16 × 4 bits`) plus `1` scale byte—sparsity saves zero bytes in a fixed dense block layout."
   },
   "7/3": {
-    "prompt": "Draw a two-slot schedule for 13 queries in chunks of five. Suppose the program drains slot A before B. Label the output rows each final drain must fill, and predict the symptom if results are merely appended in drain order.",
-    "hint": "Slot A is retired once before the last chunk reuses it. Keep the original starting row beside each pending slot.",
-    "check": "Rows 0–4 are retired before A’s reuse. The final A drain owns rows 10–12, and the B drain owns 5–9. Appending their contents in that order scrambles otherwise correct score rows. The destination offset must come from the submitted chunk."
+    "prompt": "Sketch a 2-slot ping-pong pipeline (`Slot A` and `Slot B`) processing `13` queries in chunks of `5` (rows `0..4`, `5..9`, and `10..12`). Suppose the host drains `Slot A` before `Slot B` at the end. Which output rows belong to each final drain, and what breaks if the host simply appends results in drain order instead of using each chunk’s starting row?",
+    "hint": "Chunk 0 (`0..4`) uses `Slot A` and finishes before Chunk 2 (`10..12`) reuses `Slot A`, while Chunk 1 (`5..9`) sits in `Slot B`.",
+    "check": "Rows `0..4` finish first. At shutdown, `Slot A` holds rows `10..12` and `Slot B` holds rows `5..9`. Appending in drain order writes rows `[0..4, 10..12, 5..9]`, scrambling valid scores into the wrong query rows. Always tag each slot with its chunk’s starting offset."
   },
   "7/4": {
-    "prompt": "Give two clients separate recommendations. Policy A takes 2.1 ms with max error 0.0001 and changes one digit label. B takes 1.7 ms with error 0.002 and changes none. Client one requires error ≤ 0.001. Client two requires every label to agree. Which evidence should accompany each choice?",
-    "hint": "Apply each client’s rule to every variant before looking at elapsed time.",
-    "check": "A is admissible for client one; report its error, reference scope and timing. B is admissible for client two; report its matched per-query labels and timing. Client two’s result supplies no guarantee about its maximum numerical error on a new input."
+    "prompt": "Make separate recommendations for two clients. Policy A takes `2.1 ms`, has max error `0.0001`, and flips `1` digit label. Policy B takes `1.7 ms`, has max error `0.002`, and flips `0` labels. Client 1 requires max error `≤ 0.001`; Client 2 requires `0` label flips. Which policy passes for each client, and what proof must accompany each recommendation?",
+    "hint": "Filter out policies that violate a client’s correctness rule before comparing speed.",
+    "check": "Recommend Policy A for Client 1 (with its max error, reference scope, and timing) because Policy B exceeds `0.001`. Recommend Policy B for Client 2 (with its per-query label match and timing) because Policy A flips a label—noting clearly that zero flips on this test set does not bound numerical error on unseen inputs."
   },
   "8/soundstage": {
-    "prompt": "Design a two-box ray that can gain nothing from visiting the nearer box first. Give the two entry distances, the nearest actual hit, and the reason the other box must stay eligible.",
-    "hint": "Entering a bounding volume only promises that it could contain a hit. The nearer box can be empty along this ray.",
-    "check": "One witness is entries 2 and 6, no triangle hit along the ray in the first box, and a triangle hit at 7 in the second. Until the hit at 7, no finite nearer surface justifies discarding the second box."
+    "prompt": "Construct a concrete two-box ray scenario where visiting the nearer box first fails to prune the farther box. Specify both box entry distances, the nearest actual triangle hit distance, and why the farther box still has to be tested.",
+    "hint": "Intersecting a bounding box only means the ray passes through its volume—it doesn’t guarantee the ray actually hits a triangle inside.",
+    "check": "For example: Box 1 starts at distance `2` and Box 2 starts at distance `6`. The ray misses every triangle inside Box 1, then hits a triangle at distance `7` inside Box 2. Because Box 1 produced no hit (`tMax` stayed `∞`), you still had to test Box 2."
   },
   "8/0": {
-    "prompt": "Take your draft claim and write one possible observation that would make you keep the old implementation, even if the new kernel is faster on the usual input.",
-    "hint": "Choose a genuine requirement of the same user. A failed correctness gate, unacceptable memory use or a slower required tail metric can reverse the decision.",
-    "check": "The sentence names a fixed input, a measurable quantity, the threshold, and the consequence. For example, a faster renderer still loses if it changes a required reflected sign pixel at a locked camera."
+    "prompt": "Take your draft capstone proposal and write one concrete stopping condition that would make you reject your new kernel and keep the baseline—even if the new kernel is faster on your main benchmark.",
+    "hint": "Tie it to a real requirement for your user: a broken correctness check, excessive memory use, or a slower tail latency.",
+    "check": "A strong stopping condition names a fixed input, a measurable metric, a hard cutoff, and the decision—for example: “Even if median render time improves, reject the candidate if any pixel in the reflected sign differs at the locked camera.”"
   },
   "8/1": {
-    "prompt": "Choose an observable in your project where a constant or do-nothing implementation can accidentally pass a plausible first test. For example, a resting stitch can have zero displacement. Construct the smallest second input that exposes the defect, predict both outputs and run both tests.",
-    "hint": "Choose a scalar, a position change, or a single ID that your oracle can compute independently. Change one input feature that should alter it.",
-    "check": "Save both inputs and an independently derived output for each. Your paired tests should accept the candidate on the first input, reject it on the second, and pass both with the restored implementation."
+    "prompt": "Pick an output in your capstone where a stub or do-nothing implementation could accidentally pass an easy test (for example, an unstretched cloth edge has zero displacement). Build the smallest second input that catches that bug, compute the expected answer for both inputs by hand, and run both tests.",
+    "hint": "Pick a single scalar, displacement, or ID you can work out by hand, then change one input value so the output is forced to change.",
+    "check": "Save both inputs and your hand-computed expected outputs. Your broken stub should pass input 1 and fail input 2, while your real implementation passes both."
   },
   "8/2": {
-    "prompt": "Choose one result from your project. Propose a second edit that keeps the same number of arithmetic operations or intersection tests but could still change the runtime. Name what you would hold fixed and which other measurement would help explain a timing difference.",
-    "hint": "The same arithmetic can fetch different addresses or use a different launch shape. Match the workload and repeat both correctness and timing checks.",
-    "check": "Name the quantity held fixed, the second mechanism, the appropriate diagnostic, and a possible observation that would contradict your explanation. A speedup by itself cannot distinguish the explanations."
+    "prompt": "Pick one benchmark result from your capstone and propose a second code change that keeps the exact same number of arithmetic ops or intersection tests yet could still change runtime. State what you would hold constant and which extra measurement would explain any speed change.",
+    "hint": "Think about memory access order, coalescing, register pressure, or launch configuration. Keep the workload identical and rerun both correctness and timing checks.",
+    "check": "State the invariant work count (e.g., exact same FLOPs or triangle tests), the secondary mechanism (e.g., memory coalescing or occupancy), the specific profiler metric that tests it, and an outcome that would rule out your hypothesis."
   },
   "8/3": {
-    "prompt": "Three baseline/candidate timing pairs in milliseconds are (10,5), (4,8) and (9,10). Compute the median paired speedup and the ratio of the separate medians. Which belongs in the paired-results column? What information disappears if you sort the two timing columns independently?",
-    "hint": "Divide within each row before sorting the ratios. Then sort each time column separately for the comparison.",
-    "check": "With baseline time divided by candidate time, the paired speedups are 2, 0.5 and 0.9. Their median is 0.9. The separate medians give 9/8 = 1.125. The two summaries even disagree about which variant wins. Preserve each pair with its run order so another reader can recover the comparison you measured."
+    "prompt": "Three matched `(baseline ms, candidate ms)` timing pairs are `(10, 5)`, `(4, 8)`, and `(9, 10)`. Compute (1) the median of the three paired speedups, and (2) the ratio of the separate baseline and candidate medians. Which number belongs in your paired-results table, and what breaks if you sort the two timing columns independently?",
+    "hint": "For paired speedup, divide `baseline / candidate` inside each row before taking the median. Then compute `median(baseline) / median(candidate)` separately to compare.",
+    "check": "The three paired speedups are `2.0×`, `0.5×`, and `0.9×`, giving a median paired speedup of `0.9×` (slower). Taking separate medians gives `9 / 8 = 1.125×` (faster)—they disagree on which version even won! Sorting columns independently destroys run pairing, so always keep matched pairs together."
   },
   "8/4": {
-    "prompt": "Read only the first paragraph of your report and the reproduction commands. Write down what one independent reader could verify in five minutes, what file they would need, and the first output that would tell them the replay disagreed.",
-    "hint": "Use the tiny witness. State the device requirement only if that first check actually needs it.",
-    "check": "The report identifies a small input, an exact command, an expected numerical value, ID or tolerance, and where the first difference appears. Try those directions once from the course root before considering this check complete."
+    "prompt": "Read only the opening paragraph and reproduction commands of your final report. Write down what an outside reader can verify in five minutes, which exact file they need, and the very first printed output that would tell them their run disagreed with yours.",
+    "hint": "Point them to your smallest test case first, and mention a GPU requirement only if that first quick check actually needs one.",
+    "check": "Your report should give a small input, one exact command to run from the course root, the expected number/ID/tolerance, and the first field where a mismatch shows up. Run your own steps once from the course root before marking this complete."
   }
 };

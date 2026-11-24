@@ -3,49 +3,49 @@
 // Indexed like the course map. Week 0 is the C++ on-ramp.
 window.WEEK_PATH = [
   {
-    bring: "Open Course PowerShell and keep a text editor beside it. The first starter already compiles. Run it once and read the two FPS results before changing a line.",
-    finish: "Rebuild a changed C++ function, show a test that catches a wrong answer, and trace which worker owns the last element of a partly filled block.",
-    reuse: "In Week 1, turn that worker’s index and guard into a CUDA kernel and check the output after a real device-to-host copy."
+    bring: "Open Course PowerShell with your text editor beside it. The starter project already compiles—run it once and note both FPS numbers before changing a single line.",
+    finish: "Rebuild a modified C++ function, write a test that catches a broken output, and trace which worker handles the last element of a partially filled block.",
+    reuse: "In Week 1, you will turn that worker index and bounds check into a CUDA kernel and verify its results after copying them back from the GPU."
   },
   {
-    bring: "Bring your on-ramp drawing of a grid and your last-element test. Recall where a function that receives a pointer writes its result.",
-    finish: "Identify the first incorrect destination in the original CPU transpose, pass all five repaired shapes, and record a baseline with the GPU, input size and timing boundary.",
-    reuse: "Use the same edge-case and timing habits in Week 2 when a matrix ends partway through a tile."
+    bring: "Keep your Week 0 grid sketch and last-element check nearby, and remember where a function writes its output when it takes a pointer.",
+    finish: "Find the first wrong destination index in the starter CPU transpose, pass all five repaired matrix shapes, and log a baseline timing with your GPU model, input size, and timing boundaries.",
+    reuse: "You will use those same edge-case checks and timing habits in Week 2 when a matrix doesn't fill its last tile."
   },
   {
-    bring: "Bring your row-major matrix diagram and Week 1 timing record. Be ready to identify the addresses that adjacent threads read.",
-    finish: "Show one input where changing matrix order saves multiplications and two ragged shapes where tiled GEMM passes. Record precision, median time and error for a fair comparison.",
-    reuse: "In Week 3, compare what changes when a row has only a handful of nonzero entries and those entries point to scattered columns."
+    bring: "Keep your row-major matrix sketch and Week 1 timing record handy. You will want to trace which memory addresses adjacent threads read.",
+    finish: "Find an input where changing matrix multiplication order cuts multiplications, pass two ragged shapes in tiled GEMM, and record precision, median runtime, and error for a fair comparison.",
+    reuse: "In Week 3, you will see what changes when most matrix entries are zero and each row's nonzeros jump to scattered columns."
   },
   {
-    bring: "Use your dense matrix product as a reference. For one sparse row, multiply each stored value by the vector entry at its column and add the products.",
-    finish: "Reconstruct a graph row from its stored offsets, verify its product, then compare two work assignments on the club graph and roof matrix. Solve the checkpoint’s illustrative setup-cost crossover, then explain what the real kernel timings can establish when both mappings share one setup.",
-    reuse: "Carry that setup-cost question into Week 4. A list of geometry candidates also costs time to build before a pixel can use it."
+    bring: "Keep your dense matrix product in mind as a reference: for a sparse row, you multiply each stored nonzero value by the vector entry at its column index and sum the results.",
+    finish: "Reconstruct a graph row from its CSR offsets, verify its matrix-vector product, and compare two thread-to-row assignments on the club graph and roof matrix. Work through the checkpoint's setup-cost crossover, then explain what your real kernel timings can and cannot prove when both mappings share one setup.",
+    reuse: "Bring that setup-cost question into Week 4, where building a list of geometry candidates also costs time before a pixel can use it."
   },
   {
-    bring: "Bring your Week 1 GPU-versus-host timing diagram and your Week 3 example of uneven work. Think of a pixel where two pieces of a worm overlap.",
-    finish: "Keep a matching station frame, a verified sluice frame, and the original swarm’s sparse/dense checkpoint results. Use the work view to explain which candidates disappeared and the timings to show what the change bought.",
-    reuse: "Take the fixed-input comparison into Week 5, where a fluid image can look plausible even when its pressure residual is too large."
+    bring: "Keep your Week 1 GPU-vs-host timing diagram and your Week 3 uneven-work example handy, and picture a pixel where two sections of a worm overlap.",
+    finish: "Save a verified station frame, a verified sluice frame, and your sparse/dense swarm checkpoint results. Use the Work view to show which candidate tests disappeared and your timings to show what that actually saved.",
+    reuse: "Carry that fixed-input testing habit into Week 5, where a fluid frame can look smooth and plausible even when its pressure error is still too high."
   },
   {
-    bring: "Recall how you verified one matrix row in Week 3 and how you kept geometry fixed for a timing comparison in Week 4. Sketch the four neighbors of one interior grid point.",
-    finish: "Trace two pressure sweeps, compare solver time at a stated residual target, and check the vortex on two grids against its analytic decay.",
-    reuse: "In Week 6, keep timestep and sweep count fixed while comparing cloth solvers. Then vary those settings deliberately and measure how much the fabric stretches."
+    bring: "Recall how you checked a single matrix row in Week 3 and held geometry fixed for timings in Week 4. Before diving in, sketch an interior grid cell and its four neighbors.",
+    finish: "Trace two Jacobi pressure sweeps by hand, compare solver runtimes at a fixed residual target, and verify a decaying vortex on two grids against its exact analytic formula.",
+    reuse: "In Week 6, you will hold the time step and sweep count fixed while comparing cloth solvers—then vary those settings on purpose to measure how much the fabric stretches."
   },
   {
-    bring: "Bring your Week 5 iteration and error measurements. Sketch a pair of cloth vertices joined by one stitch and mark the vertex that stays pinned.",
-    finish: "Test the cloth solver on an intact and a torn mesh, measuring pinned drift and changed active edges. In Selvedge, release a tear and rotate the view to verify its location on the sleeve.",
-    reuse: "Use the same habit in Week 7: declare which changes to the output you will accept before comparing faster hardware or lower precision."
+    bring: "Keep your Week 5 iteration counts and error numbers nearby. Start by sketching two cloth vertices linked by a single stitch, with one vertex pinned in place.",
+    finish: "Test your cloth solver on both intact and torn meshes, checking pinned-vertex drift and which edge IDs broke. In Selvedge, pull a tear, release the mouse, and orbit the camera to prove the split stays anchored to the sleeve.",
+    reuse: "Carry that same discipline into Week 7: decide upfront which output differences are acceptable before comparing faster hardware paths or lower precision."
   },
   {
-    bring: "Bring one GPU timing with its device and precision, plus an output check from the digit, pressure or cloth lab. You will need both to evaluate a faster path.",
-    finish: "Defend a precision choice for two matrix workloads using measured time and error. On the chunked digit search, verify the last partial chunk and identify the boundaries of your host timing.",
-    reuse: "Open Week 8 with the Soundstage radio. Apply your acceptance rule to a different optimization by checking the selected triangle before comparing render times."
+    bring: "Have one GPU timing (with device and precision noted) plus an output check from the digit, pressure, or cloth lab ready—you will need both to judge whether a faster path is worth it.",
+    finish: "Defend a precision choice across two matrix workloads using measured runtimes and errors. On the chunked digit pipeline, verify the final partial chunk and document exactly what your host wall-clock timer includes.",
+    reuse: "Start Week 8 with the Soundstage radio: apply your acceptance rule to a ray-tracing optimization by verifying the nearest hit triangle before comparing render times."
   },
   {
-    bring: "Bring your Week 7 decision table and one earlier experiment you would like to defend. The opening Soundstage session supplies a worked example of comparing a fast search with an independent reference.",
-    finish: "Deliver a reproducible capstone with a fixed contract, a deliberately detected defect, a held-out case, before-and-after timings and a documented limit. Use the rubric to revise the weakest part.",
-    reuse: "During the spaced reviews, rerun the capstone on a fresh input and try to predict when the original baseline would win."
+    bring: "Bring your Week 7 precision decision table and one earlier lab experiment you want to push further. The opening Soundstage session gives you a worked example of checking a faster search against an independent reference.",
+    finish: "Deliver a reproducible capstone with a clear acceptance rule, a verification test proven to catch a planted bug, a held-out test case, repeated before-and-after timings, and an honest limit—then revise your weakest section using the rubric.",
+    reuse: "During your spaced reviews, rerun your capstone on a fresh input and try to predict when the original baseline would beat your optimization."
   }
 ];
 
@@ -58,31 +58,31 @@ window.WEEK_RECALL = [
 // Keys are the original bookmarked day IDs; links point to the corresponding tracked studio session.
 window.SESSION_BRIDGES = {
   "4/2": [
-    {id:"4/lighting",text:"Take the bounding test you just used for a tile to the station and freeze a shot where the sign is visible both above the platform and in the puddle."}
+    {id:"4/lighting",text:"Bring the tile bounding test you just worked on into the station scene, and freeze a shot where the sign appears both above the platform and reflected in the puddle."}
   ],
   "4/3": [
-    {id:"4/creature",text:"Take your dense-case prediction into Sluice 09 and test which five-link groups a ray can safely skip as the worms overlap."}
+    {id:"4/creature",text:"Bring your dense-case prediction into Sluice 09 and see which five-link groups a ray can safely skip when the worms overlap."}
   ],
   "4/4": [
-    {id:"4/lighting",text:"Use the station’s reflected sign as a second example of why a correct visibility test must account for rays beyond the camera’s first hit."},
-    {id:"4/creature",text:"Use the sluice work count to explain whether the change in primitive tests predicts the change in elapsed GPU time."}
+    {id:"4/lighting",text:"Use the station's reflected sign as a second example of why a visibility test has to handle secondary rays, not just the camera's first hit."},
+    {id:"4/creature",text:"Use the Sluice 09 work counts to check whether cutting primitive tests actually predicts how much GPU time you save."}
   ],
   "6/3": [
-    {id:"6/textile",text:"After recording the cloth solver’s fracture history, predict what will happen to a split on Selvedge’s sleeve when you release the fabric and rotate the camera."}
+    {id:"6/textile",text:"After logging the cloth solver's fracture history, predict what happens to a split on Selvedge's sleeve once you release the mouse and orbit the camera."}
   ],
   "6/4": [
-    {id:"6/textile",text:"Compare what your solver’s active-edge count proves about a broken stitch with what Selvedge’s orbit test proves about where a surface tear is stored."}
+    {id:"6/textile",text:"Contrast what the cloth solver's active-edge flags prove about a broken stitch with what Selvedge's orbit test proves about where a surface tear lives."}
   ],
   "7/4": [
-    {id:"8/soundstage",text:"Carry your timing boundary and acceptance rule into Soundstage and test whether a different search order reaches the same triangle sooner."}
+    {id:"8/soundstage",text:"Bring your timing boundaries and acceptance rule into Soundstage and test whether visiting the closer bounding box first finds the exact same triangle faster."}
   ],
   "8/0": [
-    {id:"8/soundstage",text:"Use the radio’s nearest-hit contract as a model for specifying what must agree in your chosen matrix, sparse, fluid or graphics project."}
+    {id:"8/soundstage",text:"Use the radio's nearest-hit contract as a template for specifying what must stay identical in your own matrix, sparse, fluid, or graphics capstone."}
   ],
   "8/1": [
-    {id:"8/soundstage",text:"Use the radio’s double-precision brute-force check as an example when choosing an independent reference for your own project."}
+    {id:"8/soundstage",text:"Use the radio's double-precision brute-force checker as a model when picking an independent reference for your capstone."}
   ],
   "8/4": [
-    {id:"8/soundstage",text:"Review how the radio separates a count of triangle tests from full-frame time, then make the same distinction between work and elapsed time in your capstone report."}
+    {id:"8/soundstage",text:"Look back at how the radio separates triangle-test counts from full-frame render time, then make the same distinction between work counts and wall/GPU time in your capstone report."}
   ]
 };

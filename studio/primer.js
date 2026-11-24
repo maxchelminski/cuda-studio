@@ -1,44 +1,133 @@
 "use strict";
-globalThis.PRIMER = {title:"C++ from the first line",focus:"Five short sessions move from a number on screen to a launch of many independent workers. Each starter compiles and prints specific checks for your edit.",days:[]};
+globalThis.PRIMER = {
+  title: "C++ from scratch",
+  focus: "Five focused sessions take you from writing your first C++ function to simulating how a grid of parallel GPU threads works. Every exercise compiles out of the box and prints clear PASS/TRY checks.",
+  days: []
+};
+
 (() => {
-const files=["01_frames.cpp","02_loop.cpp","03_matrix.cpp","04_buffers.cpp","05_threads.cpp"];
-function day(title,minutes,objective,recall,lesson,code,steps,hint,solution,question,options,answer,explanation,deliverable,reading) {
- const num=PRIMER.days.length+1;
- PRIMER.days.push({title,minutes,track:"C++ on-ramp",objective,recall,lesson,code:{language:"C++",text:code},steps,hint,solution,check:{question,options,answer,explanation},deliverable,resources:[{label:"LearnCpp · "+reading[0],url:reading[1]}],file:"labs/primer/"+files[num-1],run:"powershell -ExecutionPolicy Bypass -File .\\labs\\primer\\run.ps1 "+num});
-}
-day("Turn a frame time into FPS",70,"Edit, compile, and run your first C++ function. Use the test output to find a one-line mistake.",
-"At 50 frames per second, how many milliseconds does one frame take on average?",
-"A .cpp file is text. A compiler translates it to an executable. Running that executable starts at main(). A pair of braces encloses a block of statements. A semicolon ends a statement. The first word in float fps(float milliseconds) says what comes back. The argument in parentheses names what goes in. The letter f in 1000.0f asks for a single-precision floating-point constant.\n\nOpen Course PowerShell.cmd in G:\\CUDA-Studio. In the Guided exercise tab, copy the first command into the course shell and press Enter. The starter runs as shipped and prints TRY for two checks. In that same window, type .\\Edit-CourseFile.ps1 .\\labs\\primer\\01_frames.cpp and press Enter. Find the comment beginning STUDENT. Change the expression after return in fps, save with Ctrl+S, then rerun the build command. Use the Up arrow to recall a previous terminal command. The command recompiles on every run. Each check prints what your function returned (got) and the answer required (expected). TRY means the executable ran and found a mismatch. A compiler error gives a filename and line before any checks run. A warning about an unused parameter is normal in a partially filled starter. Everything in check.hpp is course-provided.",
-"float seconds_to_ms(float seconds) {\n    return seconds * 1000.0f;\n}\n// A call to seconds_to_ms(0.25f) produces 250.",
-["Before editing, write the expected FPS for frame times of 20 and 8 ms. Run the starter. Find both observations in the output.","Use the conversion in seconds_to_ms to finish fps. Compare the observed values with your prediction. Change the first test’s input from 20 to 25 ms. Update its label and expected result before running again.","Delete the semicolon after your return and rebuild. Locate the file and line in the compiler message. Restore it. Explain why rerunning an old executable would hide your change."],
-"One second contains 1000 milliseconds. Count how many frames of equal duration fit inside it.","return seconds_to_ms(1.0f) / milliseconds; gives 50 FPS at 20 ms, 125 at 8 ms, and 40 at 25 ms. Limit this function to positive frame times.",
-"12.5 ms per frame corresponds to how many FPS?",["12.5","80","125"],1,"1000 divided by 12.5 is 80.","Save your new passing 25 ms test and the compiler message you learned to read.",["functions and return values","https://www.learncpp.com/cpp-tutorial/introduction-to-functions/"]);
-day("Count slow frames in a trace",90,"Use a container, a loop, and a conditional to summarize a sequence.",
-"How would a single long frame change the feeling of a game with a high average FPS?",
-"A std::vector<int> owns a sequence of integers. The brace list {10,16,25,17} initializes four samples. A range-for loop takes each element in order. In int sum = 0, int declares a whole-number variable and = 0 initializes it. The variable lives outside the loop and survives each iteration. += adds a value to the current total. In the function header const std::vector<int>& samples borrows the original sequence for reading. const disallows changes through this name and & avoids copying the vector.",
-"int total(const std::vector<int>& samples) {\n    int sum = 0;\n    for (int sample : samples) {\n        sum += sample;\n    }\n    return sum;\n}",
-["Trace total by hand. The running sums should be 10, 26, 51, and 68. Predict what the loop does on an empty vector.","Write count_over. Initialize a count to zero before the loop. For every sample strictly greater than budget, add one. Return the accumulated count after the loop.","Add a check for {16,17,16,18} at a budget of 16. Deliberately use >= and read which tests catch the boundary error. Restore the strict comparison."],
-"An if statement takes a condition in parentheses. ++count increases an integer by one.","int count = 0; for (int sample : samples) { if (sample > budget) { ++count; } } return count;",
-"What does an empty sequence contribute to the count?",["0","1","The previous call’s count"],0,"A local count initialized to zero is returned without entering the loop.","Record a real example of an inclusive versus exclusive threshold and show a test that distinguishes them.",["range-based loops","https://www.learncpp.com/cpp-tutorial/range-based-for-loops-for-each/"]);
-day("Put a matrix in one line of memory",100,"Connect the matrix notation you know to the integer arithmetic C++ actually executes.",
-"What is the difference between the flat indices of column 1 in rows 0 and 1 of a row-major 2×3 array?",
-"Indexing starts at zero. A logical matrix can live in one vector: row 0 takes positions 0,1,2 and row 1 takes positions 3,4,5. To get to (r,c), skip r complete rows and then c entries. a.at(i) checks that an index exists and returns its value. In for (int k = 0; k < inner; ++k), C++ starts k at zero, repeats while k is less than inner, and increases k by one after each iteration. In dot_cell, the same k walks along one row of A and down one column of B. Those memory strides differ even though both are one step in algebraic notation.",
-"// A = [1 2 3; 4 5 6]   B = [1 0; 0 1; 1 1]\n// C(1,0) = 4*1 + 5*0 + 6*1 = 10\nfor (int k = 0; k < inner; ++k) {\n    result += a.at(index_of(row,k,inner)) * b.at(index_of(k,col,out_cols));\n}",
-["Draw both input matrices and compute all four output entries. Label the six flat memory indices on A.","Repair index_of and run the starter. Add a C(1,1) check. Now trace the two addresses read for each term of C(1,0).","Open the Matrix tile explorer from the Workbench. Keep the defaults, predict the last two products for C[0,0], and click Next phase once. Check the final sum, then return to the lesson."],
-"At width 3, row 1 starts at index 3. Width belongs to the matrix whose address you are calculating.","return row * width + col; The product is [[4,5],[10,11]]. For C(1,0), A reads 3,4,5 while B reads 0,2,4.",
-"In a row-major matrix with width 7, what flat index holds (2,3)?",["9","17","23"],1,"Skip two rows of seven values, then move three columns.","Keep your four-entry answer and a diagram of the six reads behind C(1,0).",["vectors and indexing","https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/"]);
-day("Pass a buffer to a function",100,"Read a pointer, write through another, and protect the end of a buffer.",
-"A vector has four elements. List its valid indices and explain what would happen if you tried to read element 4 with .at().",
-"A pointer holds the address of an object. For a contiguous buffer, input[i] means the ith element after the start, where each step advances by the size of the element. const float* input permits reads. float* output permits writes. The pointer alone does not carry the number of elements. Callers pass n separately. std::vector owns the storage and .data() gives a pointer to its first slot. Keep that vector alive and its size fixed while the pointer is in use.",
-"void copy_first(const float* input, float* output, int n) {\n    if (n > 0) { output[0] = input[0]; }\n}\n// The call borrows both buffers for this operation.\nscale(in.data(), out.data(), 4, 0.5f);",
-["Trace copy_first for n=0 and n=1. Predict the four outputs when scaling {2,−1,0,6} by 0.5 and the value the fifth slot should retain.","Replace the starter body in scale with an indexed loop and multiply by factor. Build, run and check the sentinel at slot 4.","In main, create short_out with values {7, 8, 9, 10} and call scale on its first two slots with factor zero. Add four check lines to the existing ok result, one for each slot from 0 through 3."],
-"A for loop can name its counter, stopping condition, and update: for (int i = 0; i < n; ++i).","for (int i = 0; i < n; ++i) { output[i] = input[i] * factor; } The valid indices are 0 through n−1. A sentinel just beyond the logical output exposes an accidental extra store in this test.",
-"Which fact must accompany a pointer when scaling an arbitrary buffer?",["The file size","Its logical element count","Its device clock speed"],1,"Iteration needs a bound. A bare pointer identifies where to start.","Save the four short slot results and explain how the starting values let you detect a skipped write or an extra write.",["pointers","https://www.learncpp.com/cpp-tutorial/introduction-to-pointers/"]);
-day("Turn a loop into a grid",110,"Make independent workers cover an array exactly once, including a partial last block.",
-"Think back to storing a matrix one row after another in a flat array. Each row has eight entries. How many entries come before row 2 when rows are numbered from zero?",
-"The CPU program imitates the indices a CUDA launch supplies. Think of block as a page and lane as a position on that page. Blocks have equal capacity, including the last one. Ceiling division allocates a last block when it has even one valid item. Each worker computes a global index and checks it before accessing memory. GPU threads may run in a different order from this simulator. Unique ownership makes the result independent of that order.",
-"// Simulate block 1 with a block size of 4.\n// lane     0   1   2   3\n// index    4   5   6   7\n// n=5    use  skip skip skip",
-["In simulate_launch, change the expression that sets index so each worker gets its position across all the blocks. For n = 5 and block_size = 4, trace the four workers in block 1 and identify which one reaches visits.at(index).","Add 0 and 9 to the test lengths. Draw each block that starts, mark the workers that reach the write, and compare your tally with the program’s count of slots visited once.","Find the block size and the thread doing the sums in first_kernel.cu. Use the existing 257-item GPU result or run the checker. Save what it checked, your simulator explanation and your two-thread counter example."],
-"Circle lane 0 in each block. What pattern do you see in those workers’ global indices? Now look at the next lane in each block.","int index = block * block_size + lane; With four workers per block, block 1 computes indices 4, 5, 6 and 7. At n = 5, only its lane 0 reaches the array. Across both blocks, five workers write and three skip the write.",
-"There are 65 items and 32 workers per block. Your simulator starts enough whole blocks to cover the array. How many workers start but skip the array write?",["1","31","32"],1,"Three blocks launch 96 workers. The 31 beyond index 64 skip the store.","Save your block drawing and explain why every array slot gets one visit. Include the 257-item GPU check line and what it tested. Use the two-thread counter example in step 3 to explain how an update could be lost.",["C++ loops","https://www.learncpp.com/cpp-tutorial/for-statements/"]);
+  const files = ["01_frames.cpp", "02_loop.cpp", "03_matrix.cpp", "04_buffers.cpp", "05_threads.cpp"];
+  function day(title, minutes, objective, recall, lesson, code, steps, hint, solution, question, options, answer, explanation, deliverable, reading) {
+    const num = PRIMER.days.length + 1;
+    PRIMER.days.push({
+      title, minutes, track: "C++ on-ramp", objective, recall, lesson,
+      code: {language: "C++", text: code},
+      steps, hint, solution,
+      check: {question, options, answer, explanation},
+      deliverable,
+      resources: [{label: "LearnCpp · " + reading[0], url: reading[1]}],
+      file: "labs/primer/" + files[num - 1],
+      run: "powershell -ExecutionPolicy Bypass -File .\\labs\\primer\\run.ps1 " + num
+    });
+  }
+
+  day(
+    "Turn a frame time into FPS",
+    70,
+    "Edit, compile, and run your first C++ function, then learn how to read both test output and a real compiler error.",
+    "If a game runs at 50 frames per second (FPS), how many milliseconds does one frame take on average?",
+    "A .cpp file is plain source text. A compiler translates it into an executable program, and Windows starts running that program at main(). Curly braces { } group lines of code together, and a semicolon ; ends each statement.\n\nIn float fps(float milliseconds), the first float is the return type (what the function sends back), and float milliseconds is the input parameter. Adding f to a number like 1000.0f makes it a 32-bit single-precision float.\n\nOpen Course PowerShell.cmd in G:\\CUDA-Studio and run the build command from Guided Exercise. The starter compiles right away and prints TRY on two tests because fps() still returns its input unchanged. Open 01_frames.cpp with Edit-CourseFile.ps1, edit fps(), save with Ctrl+S, and rerun the same PowerShell command. PASS means your output matched the expected value; TRY means the program ran but returned the wrong number; a compiler error stops before any tests run.",
+    "float seconds_to_ms(float seconds) {\n    return seconds * 1000.0f;\n}\n// Calling seconds_to_ms(0.25f) returns 250.0f.",
+    [
+      "Predict the FPS for 20 ms and 8 ms frames on paper, then run the starter in Course PowerShell to see the initial TRY lines.",
+      "Implement fps() in 01_frames.cpp, rerun until both tests print PASS, then change the 20 ms test to 25 ms with the matching expected FPS.",
+      "Deliberately remove a semicolon to inspect a real compiler error, restore it, and verify both tests pass again."
+    ],
+    "One second has 1,000 milliseconds. Think about how many frames of length `milliseconds` fit into 1,000 ms.",
+    "`return seconds_to_ms(1.0f) / milliseconds;` gives 50 FPS for 20 ms, 125 FPS for 8 ms, and 40 FPS for 25 ms (assuming a positive frame time).",
+    "If each frame takes 12.5 ms, what is the frame rate in FPS?",
+    ["12.5", "80", "125"],
+    1,
+    "1,000 ms ÷ 12.5 ms per frame = 80 frames per second.",
+    "Save your passing 25 ms test line (`got 40, expected 40`) and one compiler error line (file, line number, and message) from the missing-semicolon test.",
+    ["functions and return values", "https://www.learncpp.com/cpp-tutorial/introduction-to-functions/"]
+  );
+
+  day(
+    "Count slow frames in a trace",
+    90,
+    "Loop over a std::vector of frame times, keep a running counter, and test strict (>) vs. inclusive (>=) thresholds.",
+    "Why can a single very long frame make a game feel stuttery even when the average FPS looks high?",
+    "std::vector<int> stores an ordered list of integers, like {10, 16, 25, 17}. A range-based for loop visits each value in order. Declaring int count = 0; before the loop gives you a counter that persists across every iteration.\n\nIn the function signature const std::vector<int>& samples, the & avoids making a copy of the vector, and const guarantees your function only reads it without modifying it.",
+    "int total(const std::vector<int>& samples) {\n    int sum = 0;\n    for (int sample : samples) {\n        sum += sample;\n    }\n    return sum;\n}",
+    [
+      "Trace total() by hand on {10, 16, 25, 17} and on an empty list, then run Exercise 2 to confirm.",
+      "Implement count_over() so it counts how many frames are strictly greater than budget, and rerun until all three starter tests pass.",
+      "Add a fourth test for {16, 17, 16, 18} at budget 16, temporarily swap > to >= to see which tests catch the bug, then restore >."
+    ],
+    "Put an `if (sample > budget)` check inside the loop and increment your counter with `++count;`.",
+    "`int count = 0; for (int sample : samples) { if (sample > budget) { ++count; } } return count;`",
+    "What should count_over() return when given an empty list {}?",
+    ["0", "1", "Whatever the previous call returned"],
+    0,
+    "The local counter starts at 0, the loop runs zero times, and the function returns 0.",
+    "Write down what count_over({16, 17, 16, 18}, 16) returned with `>` vs. `>=`, and confirm the empty list returned 0.",
+    ["range-based loops", "https://www.learncpp.com/cpp-tutorial/range-based-for-loops-for-each/"]
+  );
+
+  day(
+    "Put a matrix in one line of memory",
+    100,
+    "Map 2D matrix coordinates (row, col) to 1D row-major array indices and trace how matrix multiplication walks through memory.",
+    "In a 2 × 3 matrix stored row-by-row in a flat array, how many array positions separate column 1 of row 0 from column 1 of row 1?",
+    "C++ arrays and vectors start at index 0. To store a 2D matrix in one flat std::vector (row-major order), lay out all of row 0 first, then row 1 right after it, and so on. To reach (row, col), skip `row` complete rows and step right by `col`.\n\nUsing a.at(i) reads index i while checking that i is in bounds. Inside matrix multiplication, increasing k by 1 steps across a row of A (stride 1) but jumps down a column of B (stride = width of B).",
+    "// A = [1 2 3; 4 5 6]   B = [1 0; 0 1; 1 1]\n// C(1,0) = 4*1 + 5*0 + 6*1 = 10\nfor (int k = 0; k < inner; ++k) {\n    result += a.at(index_of(row, k, inner)) * b.at(index_of(k, col, out_cols));\n}",
+    [
+      "Compute the 2 × 2 product C = A × B on paper and label the flat 0-based indices of A.",
+      "Fix index_of() in 03_matrix.cpp, add a test for C(1,1), and trace the exact flat indices read for C(1,0).",
+      "Open the Matrix tile explorer, run one phase advance on C[0,0] to preview how GPUs group outputs, then return here."
+    ],
+    "Each full row contains `width` elements, where `width` is the number of columns in that specific matrix.",
+    "`return row * width + col;` The product is [[4, 5], [10, 11]]. For C(1,0), A reads indices 3, 4, 5 and B reads indices 0, 2, 4.",
+    "In a row-major matrix with 7 columns, which 0-based flat index holds row 2, column 3?",
+    ["9", "17", "23"],
+    1,
+    "Skip 2 full rows of 7 elements (2 × 7 = 14), then move 3 columns over: 14 + 3 = 17.",
+    "Save your 2 × 2 matrix result [[4, 5], [10, 11]] and the three pairs of flat indices (and values) read to compute C(1,0).",
+    ["vectors and indexing", "https://www.learncpp.com/cpp-tutorial/introduction-to-stdvector-and-list-constructors/"]
+  );
+
+  day(
+    "Pass a buffer to a function",
+    100,
+    "Read from an input pointer, write scaled results through an output pointer, and use guard values to catch out-of-bounds writes.",
+    "If a std::vector has 4 elements, what are its valid indices, and what happens if you call .at(4)?",
+    "A pointer stores the memory address of an element. Given a pointer to the start of a contiguous buffer (such as vec.data()), `input[i]` reads the element at offset i. `const float* input` allows reading only; `float* output` allows writing.\n\nA raw pointer does not know how long the buffer is, so the caller passes the length `n` separately. Always keep the owning std::vector alive and unresized while a pointer into it is being used.",
+    "void copy_first(const float* input, float* output, int n) {\n    if (n > 0) { output[0] = input[0]; }\n}\n// Passes raw pointers to the vectors' storage along with length n = 4:\nscale(in.data(), out.data(), 4, 0.5f);",
+    [
+      "Trace copy_first() for n = 0 and n = 1, then predict all 5 slots of `out` in Exercise 4 before running it.",
+      "Replace the placeholder in scale() with a for loop that scales exactly `n` elements, and verify the guard at slot 4 stays 99.",
+      "Add the `short_out` test in main() to scale 2 elements by 0.0f and check all 4 slots (both outputs and both guards)."
+    ],
+    "Use a standard counted loop: `for (int i = 0; i < n; ++i)` and assign `output[i] = input[i] * factor;`.",
+    "`for (int i = 0; i < n; ++i) { output[i] = input[i] * factor; }` Valid indices are 0 through n − 1; a nonzero guard right after slot n − 1 catches off-by-one writes.",
+    "When passing a raw pointer to a function like scale(), what extra information MUST the caller also pass?",
+    ["The source file size", "How many elements (`n`) the function is allowed to read/write", "The GPU clock speed"],
+    1,
+    "A raw pointer only gives a starting address — without `n`, the function has no way to know where to stop.",
+    "Save the four passing `short slot` test lines and a short note explaining why initializing `short_out` with nonzero numbers catches both skipped writes and extra writes.",
+    ["pointers", "https://www.learncpp.com/cpp-tutorial/introduction-to-pointers/"]
+  );
+
+  day(
+    "Turn a loop into a grid",
+    110,
+    "Compute each worker's global array index across blocks, guard extra workers in a partial last block, and connect that pattern to a real CUDA kernel.",
+    "In a flat array where each row has 8 elements, how many elements come before row 2 (counting rows from 0)?",
+    "This CPU simulator mimics how CUDA launches threads. Threads are organized into equal-sized blocks: `block` is which block you're in, and `lane` is your position inside that block. Even if an array doesn't divide evenly by `block_size`, CUDA launches a full final block — so the leftover threads at the end must check `if (index < n)` and skip writing.\n\nUnlike a sequential CPU loop, real GPU threads can run in any order simultaneously. Giving each array index exactly one owning thread keeps the result deterministic and race-free.",
+    "// Example: 4 workers per block, array length n = 5\n// Block 1 workers:\n// lane     0     1     2     3\n// index    4     5     6     7\n// n = 5  write skip  skip  skip",
+    [
+      "Fix `index` inside `simulate_launch()` in 05_threads.cpp so every worker gets its unique global index across all blocks.",
+      "Add test lengths 0 and 9 in main(), predict started / wrote / skipped worker counts, and verify with PowerShell.",
+      "Inspect the real CUDA kernel in first_kernel.cu, check the n = 257 output, and finish the handwritten digit row-profile exercise."
+    ],
+    "Look at lane 0 of block 0, block 1, and block 2: they start at 0, `block_size`, and `2 * block_size`. Now add `lane`.",
+    "`int index = block * block_size + lane;` With 4 workers per block and n = 5, block 0 writes indices 0–3, block 1 lane 0 writes index 4, and lanes 1–3 (indices 5, 6, 7) skip.",
+    "You have an array of 65 elements and launch blocks of 32 workers — just enough full blocks to cover all 65 elements. How many workers start up but skip writing because their index is out of bounds?",
+    ["1", "31", "32"],
+    1,
+    "You need ceil(65 / 32) = 3 blocks, which launches 96 workers. Workers 0–64 write (65 writes), and the remaining 96 − 65 = 31 workers skip.",
+    "Save your block/worker counts for n = 9 and n = 0, the n = 257 GPU test line, a short note on why two threads incrementing the same slot can lose an update, and your passing digit row-profile run.",
+    ["C++ loops", "https://www.learncpp.com/cpp-tutorial/for-statements/"]
+  );
 })();
