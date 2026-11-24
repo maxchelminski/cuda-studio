@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>First launch · Fieldwork</title><link rel="stylesheet" href="../../studio/style.css"><style>main{max-width:900px}main p,main li{max-width:82ch}main h2{font-size:2rem;margin-top:1.4em}main h3{margin-top:1.5em}main img{display:block;max-width:100%;max-height:440px;border-radius:7px}main table{display:block;overflow-x:auto}main li{margin-bottom:.6em}main h1{font-size:clamp(2.8rem,6vw,5rem)}p code,li code{overflow-wrap:anywhere}</style><link rel="stylesheet" href="../../studio/prediction-check.css"><script defer src="../../studio/prediction-check.js"></script><script defer src="../../studio/predictions-labs.js"></script></head><body><header><a class="brand" href="../../index.html"><i class="brandmark"></i>Fieldwork<span>CUDA STUDIO</span></a><nav><a href="../../index.html#labs">Lab shelf</a><a href="../../index.html#course">Course map</a></nav></header><main><p class="kicker">Lab manual</p><h1>First launch</h1>
+<p><strong>Week 1, Day 1.</strong> Find which thread writes each output, run the five shapes, and restore the passing kernel after testing your two boundary predictions in the lesson. Return to the pixel-grid drawing there. The sanitizer item at the end of this manual is a preview for Day 5.</p>
+<p>Open <code>first_kernel.cu</code> in a text editor. From the course root, run the check below. It uses the same in-memory CUDA compiler as the swarm lab and compiles your saved kernel on every run. The two functions at the top of the file execute on the GPU. The lines inside <code>main()</code> show how the full toolkit version allocates, uploads, launches, downloads and checks.</p>
+<pre><code class="language-powershell">python -B labs/launch/check_now.py
+</code></pre>
+<p>Both kernels initially pass all five shapes. The starter launches many threads and lets one thread add every pair. Your first change gives each valid thread its own output. With the Windows toolkit installed, the Setup page's native build also compiles and executes the C++ host. After an edit, rebuild before rerunning <code>.\build\first_kernel.exe</code>.</p>
+<ol>
+<li id="check-launch-copy" data-lab-check="launch-copy">Follow one input from a host vector through allocation, upload, launch, download, and comparison. Circle the first operation after the kernel launch that requires its output to be ready on the host. In the C++ listing, find that device-to-host copy and the error check for the launch itself.</li>
+<li id="check-launch-last" data-lab-check="launch-last">Sketch the worker IDs in the last block for 257 values and 256 workers per block. How many store a result?</li>
+<li>Replace the body of <code>add_student</code> with the guarded one-output-per-thread calculation from the final on-ramp exercise. Recompile. All five shapes must pass.</li>
+<li id="check-launch-guard" data-lab-check="launch-guard">For a negative control, temporarily change the student's guard to <code>i &lt; n - 1</code>. Predict the first missing output, run the same check, and explain the NaN it reports or detects. Restore the correct guard and run once more. On paper, explain the distinct error that floor division in the grid size would cause at n=257.</li>
+<li>Inspect a launch with Compute Sanitizer using <code>compute-sanitizer --tool memcheck .\build\first_kernel.exe</code>. Use the event-timed GEMM or render lab for your first performance report.</li>
+</ol>
+<details><summary>Worked kernel body</summary>
+<pre><code class="language-cpp">int i = blockIdx.x * blockDim.x + threadIdx.x;
+if (i &lt; n) {
+    out[i] = a[i] + b[i];
+}
+</code></pre>
+<p>The launch sends 512 workers for n=257. Only worker 256 in the second block writes. The output buffer starts filled with NaNs so an omitted write cannot pass by accident.</p>
+</details></main></body></html>

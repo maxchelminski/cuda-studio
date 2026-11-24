@@ -1,0 +1,13 @@
+device,scene,width,height,time,yaw,pitch,control,features,view,samples_per_pixel,exposure,mode,trials,gpu_p50_ms,gpu_p95_ms,host_p50_ms,host_p95_ms,different_pixels
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,lighting,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,reference,9,1.6536,2.0995,2.2092,2.4954,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,lighting,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,optimized,9,1.0685,1.1805,1.4354,1.7823,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,lighting,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,student,9,1.6454,1.6744,2.0235,2.1152,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,creature,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,reference,9,2.3495,2.8149,2.7727,3.1532,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,creature,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,optimized,9,1.0973,1.1053,1.4302,1.6812,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,creature,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,student,9,2.3689,2.9227,2.7166,3.2706,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,textile,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,reference,9,0.4426,0.4529,0.7478,1.0141,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,textile,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,optimized,9,0.3590,0.4374,0.6657,0.9500,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,textile,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,student,9,0.4417,0.4510,0.7564,0.7888,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,soundstage,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,reference,9,1.1653,1.6945,1.5701,2.0663,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,soundstage,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,optimized,9,0.9956,1.0195,1.4069,1.6539,0
+NVIDIA GeForce RTX 3070 | SM 8.6 | PTX compute_86,soundstage,640,360,2.0,0.0,0.0,0.5,7,beauty,1,1.0,student,9,1.1540,1.1805,1.5616,1.6290,0

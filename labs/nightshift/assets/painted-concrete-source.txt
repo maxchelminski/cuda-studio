@@ -1,0 +1,20 @@
+Painted Concrete
+
+Photography by Dimitrios Savva, processing by Dario Barresi, published by Poly Haven under CC0.
+Asset and attribution: https://polyhaven.com/a/painted_concrete
+License: https://polyhaven.com/license
+Original file manifest: https://api.polyhaven.com/files/painted_concrete
+
+The source is the 1K JPEG diffuse, roughness and OpenGL normal maps.
+Publisher-provided MD5 for the original files:
+Diffuse   57cc093c9a4226186da0149c2d759055
+Rough     81b672f45842b6fa64d4f2e11830a9e8
+Normal GL a77bcb5b3b8bbfca4da665361a5dd97f
+
+The course uses a derived, 512-by-512, four-byte-per-texel tile. Each map was resized
+with a Lanczos filter. The channels contain diffuse grayscale (Pillow L conversion),
+roughness, red normal and green normal in that order. Pixels are row-major with
+the source image's top row first. The byte stream is compressed with zlib and
+uploaded once per CUDA module load. The scene tints diffuse intensity differently
+for painted walls and wet floors. Its manual wrapped bilinear sampler uses the
+signed tangent-space normal XY and the roughness channel directly.

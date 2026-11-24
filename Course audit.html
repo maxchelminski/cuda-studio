@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Course audit · Fieldwork CUDA Studio</title>
+<link rel="stylesheet" href="studio/style.css">
+</head>
+<body>
+<header><a class="brand" href="index.html">Fieldwork <span>CUDA Studio</span></a><nav aria-label="Course"><a href="index.html#course">Course map</a></nav></header>
+<main>
+<p class="kicker">18 November 2026 · GeForce RTX 5070 · SM 12.0</p>
+<h1>Course audit</h1>
+<p><a href="Teaching%20audit.html">Open the lesson-by-lesson teaching audit</a> for prerequisites, exercises and expected evidence across all 49 sessions.</p>
+<p class="lede">The installed RTX 5070 passed the Windows course checks and the optional Linux Blackwell exercise. Open Course PowerShell.cmd to repeat a check or continue with the course.</p>
+<div class="stack">
+<section class="panel"><h2>RTX 5070 workstation results</h2>
+<ul>
+<li>The Windows CUDA 12.8.1 compiler built SM 120 kernels. All five launch sizes and all 11 native CTests passed. The Python runtime compiled the visual kernels for compute_120. With the new compiler the existing Anaconda numerical shortcut passed its 34 comparisons. The full native digit search reproduced 343 correct labels on 360 held-out queries. <a href="build/hardware-checks/setup-5070-20261118/native-build.log">Native build</a> · <a href="build/hardware-checks/setup-5070-20261118/course-checks.log">Course checks</a> · <a href="build/hardware-checks/setup-5070-20261118/native-digits.log">Digit results</a></li>
+<li>All seven graphics and simulation labs passed. The four Night Shift scenes were also timed at the same 640×360 settings as the original RTX 3070 captures. All 12 mode comparisons had zero differing pixels. Import the CSV under Notebook → Record a benchmark → Import a native scene benchmark. <a href="build/hardware-checks/setup-5070-20261118/night-shift-5070.csv" download>RTX 5070 measurements</a> · <a href="labs/nightshift/media/benchmark.csv" download>RTX 3070 measurements</a></li>
+<li>The Windows cuBLASLt block-scaled FP4 check matched the CPU on all 32,768 outputs and passed Compute Sanitizer. The separate pinned Linux CUTLASS 79b example compiled for sm_120a and passed its 256³ and 1,024 × 1,024 × 512 cases. <a href="build/hardware-checks/rtx5070-20261118-profiler-fp4/fp4-memcheck.log">Windows FP4 and sanitizer</a> · <a href="build/hardware-checks/setup-5070-20261118/cutlass-79b-reference.txt">Linux reference</a> · <a href="build/hardware-checks/setup-5070-20261118/cutlass-79b-timing.txt">Linux timed case</a></li>
+<li>Nsight Systems recorded 48 digit-scoring kernels across two streams. Nsight Compute collected hardware counters for one student GEMM launch using a one-time administrator session. <a href="build/hardware-checks/rtx5070-20261118-profiler-fp4/pipeline-two-stream.nsys-rep">Systems timeline</a> · <a href="build/hardware-checks/rtx5070-20261118-profiler-fp4/student-gemm-one-run.ncu-rep">Compute report</a></li>
+</ul>
+<p>The Windows toolkit and Build Tools use about 8.12 GiB on G:. On the verification date Ubuntu’s virtual disk and WSL swap together occupied 2.97 GiB on G:, including the Linux toolkit, CUTLASS source and built example. Those files grow as you add Linux packages or projects.</p>
+<p>Run this command from Course PowerShell to repeat the optional exercise.</p>
+<pre><code>wsl -d CUDA-Ubuntu -u learner -- bash -lc 'cd /mnt/g/CUDA-Studio &amp;&amp; bash labs/blackwell/run-79b.sh'</code></pre>
+</section>
+<section class="panel"><h2>Course audit on the RTX 3070 · 17 November</h2>
+<ul>
+<li><b>Learning route and notebook.</b> Opened all 49 lesson routes and checked their prerequisites, previous and next links, worksheets and returns from all 16 gallery views. Imported an original 45-session notebook twice, checked its notes, stored answers and benchmarks, then completed and reopened the new sessions. Checked the review intervals for days 1, 3, 7 and 21, including a late review.</li>
+<li><b>First programs.</b> Compiled all five C++ on-ramp starters and six algorithm studies, then tested their worked edits in separate copies. The editable first CUDA kernel matched the reference at vector lengths 1, 255, 256, 257 and 4,099.</li>
+<li><b>Numerics.</b> Ran 34 real-device numerical comparisons through the runtime compiler on the RTX 3070. Verified the reported summary against all nine recorded timings for each comparison. The chunked digit pipeline matched the CPU on every one of 517,320 scores. The browser scored all 360 held-out digits, with 343 correct cosine matches and 246 correct raw-dot matches.</li>
+<li><b>Browser algorithms.</b> Checked 61,602 tile phases against independent scalar calculations, including rectangular edges. Enumerated matrix-chain parenthesizations to check the dynamic-programming recurrence. The six-matrix challenge reached 15,125 scalar multiplications. After a cloth cut, the scan and spatial-bin searches returned the same ordered hits for all 70 test queries.</li>
+<li><b>Graphics and physics.</b> Ran the native swarm, flow, knit and four Night Shift scene checks. The radio passed 257 independent FP64 ray checks. The textile tear persisted across release, camera movement and CUDA reload. The two fluid solvers passed a ragged periodic-grid check and the manufactured vortex showed second-order refinement. The 3D knit’s three solver modes agreed on the measured fracture history. Decoded all five shipped films, totaling 960 frames.</li>
+<li><b>Studio instructions.</b> Ran all eight multi-command practice blocks. The ten benchmark files had zero differing pixels across their three variants, and the notebook imported all 60 GPU and host timing rows. Injected a failure at each of 19 native command positions to check the stopping behavior.</li>
+</ul></section>
+<section class="panel"><h2>What changed for the learner</h2>
+<ul>
+<li>Week 6 now asks you to predict and measure fracture at two thresholds, then follow the tear into the Selvedge studio. The tile-culling exercise starts with a runnable candidate-count experiment. Capstone instructions give concrete evidence to collect for both numerical and graphics projects.</li>
+<li>The swarm benchmark now checks which segment wins each pixel before timing. Changing the shot clears the viewer’s previous comparison. These fixes were tested with an intentionally wrong segment ID and a camera or material change after a passing comparison.</li>
+<li>The numerical lab prints individual timing samples in the order collected. CUDA comments containing characters such as the proportionality sign now compile through the Windows Python runner. Failed studio checks stop before they can replace a successful timing file.</li>
+<li>Review cards show the lesson’s recall prompt and knowledge-check choices. An unreadable saved notebook can be downloaded for recovery, and work entered while browser storage is unavailable can be exported from the current tab.</li>
+</ul></section>
+<section class="panel"><h2>Repeat the Windows checks</h2>
+<p>Run the following from Course PowerShell. The first command builds for the detected card and runs the native CTest suite. The second checks the installed exercises, including the independent radio and sluice comparisons. The optional CUTLASS build has its own Week 7 worksheet.</p>
+<pre><code>powershell -ExecutionPolicy Bypass -File .\Build-Native.ps1
+powershell -ExecutionPolicy Bypass -File .\Check-Setup.ps1 -VerifyLabs</code></pre>
+<p><a href="index.html#setup">Workstation setup</a> · <a href="labs/blackwell/README.html#cutlass-79b">Blackwell worksheet</a> · <a href="labs/pipeline/README.html#timeline">Timeline evidence</a></p>
+</section></div>
+</main></body></html>

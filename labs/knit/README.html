@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tension Study · Fieldwork</title><link rel="stylesheet" href="../../studio/style.css"><style>main{max-width:900px}main p,main li{max-width:82ch}main h2{font-size:2rem;margin-top:1.4em}main h3{margin-top:1.5em}main img{display:block;max-width:100%;max-height:440px;border-radius:7px}main table{display:block;overflow-x:auto}main li{margin-bottom:.6em}main h1{font-size:clamp(2.8rem,6vw,5rem)}p code,li code{overflow-wrap:anywhere}</style><link rel="stylesheet" href="../../studio/prediction-check.css"><script defer src="../../studio/prediction-check.js"></script><script defer src="../../studio/predictions-labs.js"></script></head><body><header><a class="brand" href="../../index.html"><i class="brandmark"></i>Fieldwork<span>CUDA STUDIO</span></a><nav><a href="../../index.html#labs">Lab shelf</a><a href="../../index.html#course">Course map</a></nav></header><main><p class="kicker">Lab manual</p><h1>Tension Study</h1>
+<p>Cut a hanging fabric swatch and watch the load redistribute around the opening. Each vertex has a three-dimensional position and up to eight distance constraints. Warp, weft and diagonal shear constraints all participate in the solver. The window draws the warp and weft strands. This model represents cloth at the mesh scale. The optional tensile threshold models brittle link failure. Yarn-scale damage, fiber friction and self-collision are topics for a higher-fidelity model.</p>
+<p><img src="cloth-preview.png" alt="A simulated swatch after a brush cut removed 61 constraints" /></p>
+<h2 id="controls">Open the lab</h2>
+<p>Use the same Python interpreter and NVIDIA NVRTC setup as the <a href="../render/README.html">swarm lab</a>. From this directory run the checks, then open the desktop scene.</p>
+<pre><code class="language-powershell">python knit.py --check
+python knit.py
+</code></pre>
+<p><code>python knit.py --cpu-check</code> runs the scalar manufactured cases when the GPU is unavailable. No extra Python packages are required. The CUDA step keeps position buffers and topology on the GPU. Drawing reads the current positions back into a Tk canvas.</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Drag left mouse</td>
+<td>Cut all warp, weft and diagonal constraints crossed by the brush</td>
+</tr>
+<tr>
+<td>Drag right mouse</td>
+<td>Grab the nearest free vertex and hold it at the pointer. Release to let the swatch relax.</td>
+</tr>
+<tr>
+<td>1 / 2 / 3</td>
+<td>Switch between exhaustive, gathered, and learner CUDA kernels</td>
+</tr>
+<tr>
+<td>Space / N</td>
+<td>Freeze the current state / reset the swatch</td>
+</tr>
+<tr>
+<td>[ / ]</td>
+<td>Decrease / increase constraint sweeps per fixed simulation step</td>
+</tr>
+<tr>
+<td>T</td>
+<td>Toggle tension-triggered tearing while the simulation runs. The default threshold is 35% extension.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Color visible edges by absolute relative strain</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Compile the saved <code>student.cuh</code> and select Student</td>
+</tr>
+</tbody>
+</table>
+<h2 id="material-state">First session · What changed in the material? (45–60 minutes)</h2>
+<p>Week 6, Day 1 uses the pinned edge and the free interior to study how a pull changes strain. Return to the lesson for the two-point check. Brush cuts and permanent damage are the subject of Day 4.</p>
+<ol>
+<li id="check-cloth-pins" data-lab-check="cloth-pins">Let the scene hang for a few seconds. Right-drag a free vertex near the middle and hold it. Press D to watch the strain spread, then release and watch the swatch relax. Press Space. Point to two places that carry a high load. The five gold pins fix translation at those vertices. How do they affect the load path?</li>
+<li>Drag across the middle while paused. Some strands disappear immediately. Record the cut count, simulation time and RMS strain. Resume for a few steps and freeze. Explain the immediate effect of deleting edges and the later motion of surviving nodes.</li>
+<li id="check-cloth-edge" data-lab-check="cloth-edge">Reset and cut near a free edge. Sketch which remaining constraints keep the patch together. Diagonals are hidden from the wireframe and still carry load until the brush severs them. A different color mode changes the display. A cut changes the equations for the next integration step.</li>
+<li id="check-cloth-correct" data-lab-check="cloth-correct">Read the distance-constraint section in Müller et al. Two endpoints lie on a line, with the left endpoint at 0 and the right endpoint at 1.2. The edge has rest length 1. Draw the positions after a correction that restores its rest length. First let two equal-mass endpoints share the correction equally. Then pin the left endpoint and repeat. Which way does each moving endpoint go? <a href="https://matthias-research.github.io/pages/publications/posBasedDyn.pdf">Position Based Dynamics paper</a>
+<details><summary>Compare the endpoint positions</summary><p>With equal masses the endpoints move toward one another by 0.1 each, to 0.1 and 1.1. With the left endpoint pinned at 0, the right endpoint moves the full 0.2 to reach 1.</p></details></li>
+</ol>
+<h3 id="tear-strain">Pull until it rips</h3>
+<ol>
+<li>Press N to reset, D for the strain view if needed, and T to enable tension-triggered tearing. Watch for <code>tear &gt;35%</code> in the HUD. Right-drag a free vertex quickly while the simulation runs. The CUDA kernel checks each active link after position prediction and before the constraint sweeps. Its edge thread permanently clears the active byte when <code>length &gt; rest × 1.35</code>. Release the mouse and inspect the resulting hole. A link under compression stays intact.</li>
+<li id="check-cloth-threshold" data-lab-check="cloth-threshold">Try a fresh run with <code>python knit.py --tear-strain 0.15</code>, then 0.60. Predict which cloth survives a larger stretch. Changing the threshold changes the material model. For a solver-speed comparison, hold the threshold fixed and verify that the exact same edges broke.</li>
+<li id="check-cloth-tie" data-lab-check="cloth-tie">Three links of rest length 2 reach lengths 1.0, 3.0, and 3.1. At a tear threshold of 0.50, a link breaks if its extension exceeds half its rest length. Decide which links break and explain what happens on an exact tie. The HUD averages strain over surviving links. Why might that reading fall just after a tear?
+<details><summary>Compare the three links</summary><p>The breaking length must be greater than 3.0. The compressed link and the link at exactly 3.0 survive. The link at 3.1 breaks. Removing a highly stretched link can lower the average strain among the links still present.</p></details></li>
+<li>Run <code>python knit.py --check</code> to verify a threshold tie, compression, an overloaded edge, and persistent damage after release. Then try <code>python knit.py --bench --tear-strain 0.01 --frames 9</code>. At this intentionally fragile setting, even the initial corrugation breaks some links. The CSV compares final positions and topology across all three algorithms and includes the fracture pass in GPU step time. The main speed exercise below uses fracture disabled.</li>
+</ol>
+<h2 id="local-gather">Second session · Turn a dense search into a local gather (60–120 minutes)</h2>
+<p>On Week 6, Day 2, follow one vertex from the old positions to its single output in the first paragraph. Return to the lesson for the intact-patch checks. Day 3 uses the eight incident slots below to implement and time the student gather.</p>
+<p>Each step runs the Verlet-style prediction in <code>cloth.cu</code>, then a fixed number of Jacobi projection sweeps. During one sweep, each vertex reads the previous sweep's positions, accumulates its share of each incident active constraint, averages the corrections, and writes one output. Swapping input and output buffers makes updates visible at the next sweep boundary. Constraint averaging follows the parallel Jacobi approach discussed by Macklin et al. <a href="https://matthias-research.github.io/pages/publications/flex.pdf">Unified Particle Physics for Real-Time Applications</a></p>
+<ol>
+<li id="check-cloth-scan" data-lab-check="cloth-scan">Read the Student loop in <code>student.cuh</code>. For a grid of 28 columns and 34 rows, the lab allocates 952 vertices and 3,624 structural/shear edges. Bound the number of edge inspections per sweep as <code>V × E</code>. Explain how fixed vertices reduce the actual count slightly.</li>
+<li id="check-cloth-degree" data-lab-check="cloth-degree">Draw a small intact patch with horizontal and vertical links and both diagonals in every square. A vertex’s degree is the number of links that touch it. Count the degree of an interior vertex, a boundary vertex away from the corners, and a corner. Compare those counts with the edge IDs in <code>Mesh.incident</code> in <code>physics.py</code>. The GPU stores each vertex’s list in an eight-slot row. A negative edge ID marks an unused slot.
+<details><summary>Compare the three degrees</summary><p>An interior vertex touches four horizontal or vertical neighbors and four diagonal neighbors, for a degree of 8. At a straight boundary it touches three horizontal or vertical neighbors and two diagonal neighbors, for 5. A corner touches two horizontal or vertical neighbors and one diagonal neighbor, for 3.</p></details></li>
+<li>Change Student to inspect the current vertex's eight slots. Skip negative entries and inactive edges. Keep the original accumulation order and preserve the pin and zero-length cases. Press R and run <code>python knit.py --check</code>. Inspect the reference <code>gathered</code> kernel after attempting your own edit.</li>
+<li id="check-cloth-storage" data-lab-check="cloth-storage">Relate this to matrix algorithms. Draw the sparse edge–vertex incidence matrix. The baseline effectively searches its full edge dimension for every vertex. The gathered solver stores just its nonzeros by vertex. Explain the storage tradeoff of keeping eight slots even at the boundary. Would this shape still suit an irregular triangle mesh?</li>
+<li>Benchmark on one grid, then increase both dimensions. Use the command below for identical initial positions, timestep, solver iterations and sampled states across all three modes. Each mode advances a separate state. The program rotates execution order, discards five warm-up steps, validates the final positions against the baseline within <code>1e-5</code> world units, and prints median/p95 GPU step times.</li>
+</ol>
+<pre><code class="language-powershell">python knit.py --bench --cols 28 --rows 34 --iterations 6 --frames 41
+python knit.py --bench --cols 48 --rows 48 --iterations 6 --frames 41
+</code></pre>
+<p>In a 41-sample run on an RTX 3070 at the smaller size, the baseline took <strong>2.389 ms</strong> median per GPU step. Gathered took <strong>0.043 ms</strong> with zero final position difference. Step timing covers prediction plus six projection launches and the intervals between them. Window FPS also includes host transfer, strain calculation, Tk drawing and timer pacing. While frozen, the HUD reports GPU idle because it is displaying the same geometry. Compare your 5070 measurements using both distributions.</p>
+<h2 id="physical-error">Third session · Speed versus physical error (60–90 minutes)</h2>
+<ol>
+<li><code>--check</code> perturbs a central vertex, applies six sweeps with no external forces, and measures <strong>RMS fractional strain</strong> using <code>sqrt(mean((length / rest − 1)²))</code> over live edges. The intact manufactured case decreases from about 0.103 to 0.031. The test fills destination buffers with NaN before each checked sweep, so accidentally skipping a pin or tail store produces a failure. The suite also checks partial cuts, an isolated vertex, pinned positions, partial CUDA blocks and agreement against a scalar CPU implementation.</li>
+<li id="check-cloth-step" data-lab-check="cloth-step">Predict how a smaller timestep and additional sweeps affect stretch. Compare the following runs at the same <strong>one second of simulated time</strong>. Five warm-up steps also advance simulation state, so 55 measured steps at 1/60 s and 115 measured steps at 1/120 s both end at one simulated second. Double the gathered median step time in the second run when comparing work per 1/60 s of simulated time.</li>
+</ol>
+<pre><code class="language-powershell">python knit.py --bench --dt 0.0166666667 --iterations 6 --frames 55
+python knit.py --bench --dt 0.0083333333 --iterations 6 --frames 115
+python knit.py --bench --dt 0.0166666667 --iterations 12 --frames 55
+</code></pre>
+<ol start="3">
+<li id="check-cloth-damp" data-lab-check="cloth-damp">Record both RMS strain and compute cost. Decide whether a reduction in sweeps improved the algorithm or changed the simulated material's response. The damping factor is applied once per integration step. Halving the timestep also applies damping twice as often per simulated second. For a controlled follow-up, derive a step-sized damping factor <code>d(dt) = d_ref ** (dt / dt_ref)</code> and repeat.</li>
+<li>For your lab report, explain why in-place parallel updates would invalidate this Jacobi comparison, why severed diagonal constraints matter to a visible slit, and when scaling would make the Tk drawing path dominate the GPU step. For an extension, explore compliance using the authors' XPBD formulation and compare effective stiffness across timesteps. <a href="https://matthias-research.github.io/pages/publications/XPBD.pdf">XPBD paper</a></li>
+</ol></main></body></html>

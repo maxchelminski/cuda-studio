@@ -1,0 +1,12 @@
+# Toolchains, WSL disks, and compiled build outputs
+tools/
+build/
+blackwell/
+
+# Python / OS / editor caches
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.tmp
+*.log

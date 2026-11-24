@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Night Shift · Fieldwork CUDA Studio</title>
+  <link rel="stylesheet" href="gallery.css">
+  <link rel="stylesheet" href="../../studio/prediction-check.css">
+  <script defer src="../../studio/prediction-check.js"></script>
+  <script defer src="../../studio/predictions-labs.js"></script>
+  <script src="gallery.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#scene-heading">Skip to the selected scene</a>
+  <header class="mast">
+    <a class="brand" href="../../index.html"><span aria-hidden="true" class="brandmark"></span>Fieldwork <span class="studio">CUDA Studio</span></a>
+    <nav aria-label="Course"><a href="../../index.html#labs">Lab shelf</a><a href="manual.html">Lab manual <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main>
+    <div class="intro">
+      <h1>Night <em>Shift</em></h1>
+      <p>Browse all four CUDA scenes here. The course map introduces each one when you have the tools to edit its kernel and measure the result.</p>
+    </div>
+    <div class="desk">
+      <section class="screen" aria-labelledby="scene-heading">
+        <div class="screen-heading"><h2 id="scene-heading" tabindex="-1">After the last train</h2><span class="capture"><i aria-hidden="true"></i> RTX 3070 capture</span></div>
+        <div class="stage" id="stage" aria-label="Scene viewer" data-view="beauty">
+          <img id="frame" src="media/lighting-beauty.jpg" alt="Train and waiting passengers on a rain-wet platform at night" decoding="async" width="1280" height="720">
+          <img id="off-frame" class="off-frame" alt="" aria-hidden="true" hidden width="1280" height="720">
+          <div class="wipe-rule" id="wipe-rule" hidden><span aria-hidden="true">‹ ›</span></div>
+          <div class="wipe-labels" id="wipe-labels" aria-hidden="true" hidden><span id="before-label">Reflections off</span><span>Full render</span></div>
+          <input id="wipe" class="wipe-input" type="range" min="0" max="100" value="50" step="1" aria-label="Reveal the feature-off frame from the left" aria-describedby="compare-help" hidden>
+          <video id="film" controls playsinline preload="none" hidden aria-label="Film of the currently selected scene">
+            Your browser cannot play this video inline.
+          </video>
+          <span class="media-error" id="media-error" role="status" hidden></span>
+        </div>
+        <div class="viewbar">
+          <div class="views" role="group" aria-label="View mode">
+            <button type="button" data-view="beauty" aria-pressed="true">Beauty</button>
+            <button type="button" data-view="compare" aria-pressed="false">Compare</button>
+            <button type="button" data-view="normals" aria-pressed="false">Normals</button>
+            <button type="button" data-view="film" aria-pressed="false"><span aria-hidden="true">▷</span> Film</button>
+          </div>
+          <a class="media-link" id="media-link" href="media/lighting-beauty.jpg">Open still <span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="caption" id="caption">Read the destination sign in the puddle, then follow the strip lights toward the end of the platform.</p>
+        <p class="caption compare-help" id="compare-help" hidden>Drag the divider, or focus it and use the arrow keys. Both frames share the same camera, time, and exposure.</p>
+        <div class="session-path">
+          <div><p class="section-label" id="session-placement">After Week 4, Day 3 · 75 minutes</p><p>Here for a capture? Compare the views named in your lesson, then switch back to that tab. The tracked scene session gives the steps for editing and measuring this kernel.</p></div>
+          <a id="session-link" href="../../index.html#day/4/lighting">Open the tracked session →</a>
+        </div>
+      </section>
+      <aside class="library" aria-labelledby="library-title">
+        <h2 class="section-label" id="library-title">Scenes</h2>
+        <div class="scene-list">
+          <a class="scene-choice" href="#lighting" data-scene="lighting" aria-current="true">
+            <img src="media/lighting-beauty.jpg" alt="" width="104" height="66"><span><b>After the last train</b><small>Wet-surface reflections</small></span>
+          </a>
+          <a class="scene-choice" href="#creature" data-scene="creature">
+            <img src="media/creature-beauty.jpg" alt="" width="104" height="66"><span><b>Sluice 09</b><small>Swarm visibility</small></span>
+          </a>
+          <a class="scene-choice" href="#textile" data-scene="textile">
+            <img src="media/textile-beauty.jpg" alt="" width="104" height="66"><span><b>Selvedge</b><small>Knitted material</small></span>
+          </a>
+          <a class="scene-choice" href="#soundstage" data-scene="soundstage">
+            <img src="media/soundstage-beauty.jpg" alt="" width="104" height="66"><span><b>Signal / Soundstage</b><small>HDR studio lighting</small></span>
+          </a>
+        </div>
+        <a id="manual-link" href="manual.html#lighting" class="manual-link">Read this scene’s field manual <span aria-hidden="true">↗</span></a>
+        <a href="media/night-shift.mp4" class="manual-link">Watch the 20-second reel <span aria-hidden="true">↗</span></a>
+      </aside>
+    </div>
+    <section class="worksheet" aria-labelledby="worksheet-title">
+      <div class="exercise-intro">
+        <p class="section-label">Scene exercise preview</p>
+        <h2 id="worksheet-title">Cull a whole platform bay</h2>
+        <p id="question">Can you skip an entire group of beams, signs, and lights and keep every pixel of the reflection?</p>
+        <a id="source-link" href="lighting.cuh">Read lighting.cuh <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="exercise-content">
+        <ol id="practice"></ol>
+        <div id="scene-predictions"></div>
+        <details id="hint"><summary>Reveal the kernel hint</summary><p id="hint-copy"></p><pre><code id="edit-code"></code></pre></details>
+        <div class="command"><span class="section-label">Validate from the course folder</span><pre><code id="check-command">python -B labs/nightshift/nightshift.py --scene lighting --check</code></pre></div>
+      </div>
+    </section>
+    <div class="run-note">
+      <p>For live FPS, camera controls, and CUDA edits, double-click <a href="../../Start%20Night%20Shift.cmd">Start Night Shift.cmd</a> in the course folder on Windows.</p>
+      <a href="../../index.html#notes">Course notebook <span aria-hidden="true">↗</span></a>
+    </div>
+    <noscript>
+      <p>Enable JavaScript to switch scenes and compare frames. <a href="manual.html">Open the complete offline lab manual</a> or <a href="media/lighting.mp4">play the station film</a>.</p>
+    </noscript>
+  </main>
+</body>
+</html>

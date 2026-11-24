@@ -1,0 +1,15 @@
+function browserBench(page,ui,panel){
+ const {root,h,crumb}=ui;
+ if(page==="cloth"){
+ root.innerHTML=crumb("#labs","Lab shelf","Browser experiment")+h("Position-based dynamics","Fabric brush","The bright points on the top edge are pinned. Pull a free point and watch how the nearby threads change length. This simulation runs in your browser on the CPU.")+
+ `<div class="labgrid section"><div><div class="instrument"><canvas id="swatch" aria-label="Pinned cloth swatch. Use the Cut center button for a keyboard-accessible cut."></canvas><div class="figbar"><b>CPU mesh · 1,225 vertices</b><span id="cuts" class="metric"></span></div></div><div class="controls"><label>Brush <select id="tool"><option value="pull">Pull</option><option value="cut">Cut</option></select></label><label>Search <select id="method"><option value="grid">Spatial bins</option><option value="scan">Full scan</option></select></label><button class="sub" id="pause">Pause</button><button class="sub" id="center">Cut center</button><button class="sub" id="reset">Reset mesh</button></div></div><div class="stack">
+ ${panel("Week 6, Day 1 · Compare two pulls",`<p>Leave Brush on Pull and let the cloth move. Drag a free point just below one of the bright pins, release it, then drag a point near the middle. Which neighboring threads stretch in each case? After those two observations, switch back to the lesson for the native strain view.</p>${LabPredictions.render(["cloth-pins"],"swatch-pull")}`)}
+ <details class="panel"><summary>Week 6, Day 4 · Cut and compare searches</summary><p>Pause the mesh and press <b>Cut center</b>. Select <b>Compare both searches</b> and record the identical hit-list count and the two candidate counts. Switch back to the lesson to test a controlled tear.</p>
+ <p id="measurement"></p><button id="verify">Compare both searches</button><p class="small" id="compare" role="status"></p>
+ <p>A full scan checks every live edge midpoint for a cut. Spatial bins limit the candidates the brush needs to test. Building the index takes time. A second query on a frozen pose can reuse it until the geometry or set of live edges changes.</p></details></div></div>`;
+ const q=id=>root.querySelector("#"+id);
+ const c=StudioExperiments.cloth(q("swatch"),{onStats:s=>{q("cuts").textContent=`${s.torn} cut links`;q("measurement").textContent=s.measured?`${s.candidates} candidates tested · ${s.found} hits. ${s.rebuilt?"Index build "+s.indexMs.toFixed(3)+" ms":"No index build this query"}, lookup ${s.queryMs.toFixed(3)} ms (CPU).`:"Touch the swatch or cut the center to measure a query."}});
+ q("pause").textContent=c.isPaused()?"Resume":"Pause";
+ q("tool").onchange=e=>c.setMode(e.target.value);q("method").onchange=e=>c.setMethod(e.target.value);q("pause").onclick=e=>e.target.textContent=c.toggle()?"Resume":"Pause";q("center").onclick=()=>c.cutCenter();q("reset").onclick=()=>{c.reset();q("compare").textContent=""};q("verify").onclick=()=>{const v=c.compare();q("compare").textContent=`${v.ok}/${v.tests} identical hit lists, including tie order. Scan tested ${v.scan.toLocaleString()} candidates, bins tested ${v.bins.toLocaleString()}.`};return ()=>c.destroy();
+ }
+}

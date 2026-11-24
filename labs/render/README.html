@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Abyssal Swarm · Fieldwork</title><link rel="stylesheet" href="../../studio/style.css"><style>main{max-width:900px}main p,main li{max-width:82ch}main h2{font-size:2rem;margin-top:1.4em}main h3{margin-top:1.5em}main img{display:block;max-width:100%;max-height:440px;border-radius:7px}main table{display:block;overflow-x:auto}main li{margin-bottom:.6em}main h1{font-size:clamp(2.8rem,6vw,5rem)}p code,li code{overflow-wrap:anywhere}</style><link rel="stylesheet" href="../../studio/prediction-check.css"><script defer src="../../studio/prediction-check.js"></script><script defer src="../../studio/predictions-labs.js"></script></head><body><header><a class="brand" href="../../index.html"><i class="brandmark"></i>Fieldwork<span>CUDA STUDIO</span></a><nav><a href="../../index.html#labs">Lab shelf</a><a href="../../index.html#course">Course map</a></nav></header><main><p class="kicker">Lab manual</p><h1>Abyssal Swarm</h1>
+<p>An animated colony contains up to 256 organisms, each made of 24 overlapping line segments with round ends. A CUDA thread shades each pixel. Your job is to preserve which segment covers each pixel while reducing the amount of work needed to find it.</p>
+<p><img src="swarm-preview.jpg" alt="A frame rendered by the tiled CUDA kernel" /></p>
+<h2 id="controls">Start here</h2>
+<p>From this directory, use a 64-bit Python interpreter with Tk, an NVIDIA driver and NVRTC 11.2 or newer. The first command exercises real CUDA kernels on six scenes. The second opens the live viewport.</p>
+<pre><code class="language-powershell">python swarm.py --check
+python swarm.py
+</code></pre>
+<p>On the development machine, Anaconda Python discovered an existing NVRTC in its PyTorch installation. The lab can also find a CUDA Toolkit under <code>CUDA_PATH</code> (including a toolkit on G:), an NVIDIA Python NVRTC package, or a compiler on <code>PATH</code>. An explicit <code>CUDA_LAB_NVRTC</code> environment variable selects a compiler DLL by full path. NVRTC needs its matching built-ins library alongside it. The window title and terminal report the selected GPU and PTX target. On the RTX 5070, an up-to-date compiler can target compute_120. An older supported compiler can use an earlier PTX target and let the driver compile it for the GPU. This lab uses scalar CUDA cores. <a href="https://docs.nvidia.com/cuda/nvrtc/index.html">NVIDIA NVRTC guide</a> · <a href="https://developer.nvidia.com/cuda/gpus">NVIDIA GPU compute capabilities</a></p>
+<p>Before CUDA is available, <code>python swarm.py --cpu --check</code> exercises the independent geometry oracle and <code>python swarm.py --cpu</code> opens a smaller live CPU scene. The CPU painter visits each capsule's screen-space bounds. CUDA mode switching and NVRTC hot reload require the GPU path. All assets are procedural. This lab defaults to disabling the CUDA driver's disk compilation cache for its own process.</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1, 2, 3</td>
+<td>Exhaustive baseline, tiled reference, editable student kernel</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>Freeze or resume the simulation clock. Timing continues on the same geometry.</td>
+</tr>
+<tr>
+<td>Click</td>
+<td>Move the colony center. Place it near a corner to test clipping.</td>
+</tr>
+<tr>
+<td>+ and −</td>
+<td>Add or remove eight worms</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Cycle beauty, encoded segment IDs and candidate-work heatmap. CPU preview has beauty and IDs.</td>
+</tr>
+<tr>
+<td>V</td>
+<td>Freeze this frame, compare CUDA colors and winner IDs byte for byte across variants, and check the device winners against the CPU painter</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Recompile from disk and switch to Student. Compiler errors point into the editable file.</td>
+</tr>
+<tr>
+<td>H / Esc</td>
+<td>Hide controls / close</td>
+</tr>
+</tbody>
+</table>
+<h2 id="baseline">Lab 1 · Establish a baseline (45–60 minutes)</h2>
+<p>In Week 1, Day 3, read the timing definitions and use the lesson’s commands to compare kernel time with host time. In Week 4, Day 1, freeze the frame and inspect the candidate heatmap. On Day 5, use those timing definitions again for your matched sparse and crowded scenes.</p>
+<ol>
+<li id="check-swarm-calls" data-lab-check="swarm-calls">Run <code>python swarm.py --width 768 --height 448 --worms 56</code>. Press Space to freeze the frame and 1 to select the exhaustive baseline. Every pixel tests every segment, and each worm has 24 segments. Predict how many times the baseline calls <code>testSegment</code> across the entire frame. Write down which factors count pixels and which count segments.
+<details><summary>Check the number of segment tests</summary><p>There are 768 × 448 = 344,064 pixels and 56 × 24 = 1,344 segments. The exhaustive pass makes 344,064 × 1,344 = 462,422,016 calls per frame.</p></details></li>
+<li id="check-swarm-bright" data-lab-check="swarm-bright">Press D twice to display the candidate heatmap. Brightness shows what fraction of all segments a pixel sends to the hit test. Before switching modes, predict whether the exhaustive baseline will show bright and dark patches on the same frame. Switch to 2 and describe where the bright tiles are. Predict what happens when you move the colony partly offscreen, then try it.
+<details><summary>Compare the two heatmaps</summary><p>The exhaustive baseline tests every segment at every pixel, so its brightness is uniform. Mode 2 shares a candidate list across each tile. Tiles overlapping many capsule bounds can appear brighter than tiles that miss most of the colony.</p></details></li>
+<li>Press D to return to beauty, then V. A correct optimized solver chooses the same winner everywhere. If several capsules overlap, the largest original segment index wins. Explain how that rule makes the final image independent of insertion order.</li>
+<li>Run the benchmark below. On the frozen workload it checks both the RGB frame and the winning segment ID at every pixel. Different segments can shade to the same color. It then times the beauty pass, rotating mode order and discarding five warm-up samples per mode. Record the median and p95 from at least 30 measured samples. <code>kernel_*</code> times CUDA events around the single render launch. <code>host_*</code> times geometry packing, upload, launch, synchronization, pixel readback and host buffer creation. The live FPS includes animation, GUI transfer and presentation. The benchmark first fills each output with a color absent from the reference palette. A kernel that skips stores will fail this preflight even when the previous variant rendered the expected frame. <a href="https://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__EVENT.html">CUDA event timing</a></li>
+</ol>
+<pre><code class="language-powershell">python swarm.py --bench --width 768 --height 448 --worms 56 --frames 41
+</code></pre>
+<p id="check-swarm-time" data-lab-check="swarm-time">For your RTX 5070 run, record the PTX target and the baseline and tiled kernel and host medians. Divide each baseline median by the corresponding tiled median. Which speedup would you quote for the whole frame measured by the benchmark? Estimate how much host time would remain if the render launch took almost no time and other costs stayed fixed. Explain why this estimate alone cannot predict the live window’s FPS.</p>
+<details><summary>Compare with one measured RTX 3070 run</summary><p>At the same scene size, median kernel time fell from 2.248 ms to 0.040 ms (about 56×). Host time fell from 3.624 ms to 1.278 ms (about 2.8×). Subtracting the tiled kernel median from the tiled host median gives a rough 1.24 ms for the rest of this benchmark. These separately measured medians give an estimate. The live window also presents the frame.</p></details>
+<h2 id="conservative-cull">Lab 2 · Make your own first cut (60–90 minutes)</h2>
+<p>Week 4, Day 2 uses the bounding-box example to understand which candidates reach the exact hit test. Return to the lesson for the overlapping-tip check. Day 3 is the CUDA edit. Front-to-back traversal below is a separate optimization.</p>
+<p>Edit <code>student.cuh</code>. Leave the baseline as an oracle. Use a frozen frame with 3 selected for comparisons.</p>
+<ol>
+<li id="check-swarm-box" data-lab-check="swarm-box"><strong>Bounding box rejection.</strong> Every point of a radius-<code>r</code> capsule lies inside the endpoint bounds expanded by <code>r</code>. Use <code>overlaps</code> with left=right=<code>x+0.5</code> and top=bottom=<code>y+0.5</code>. Increment <code>tested</code> only for candidates passed on to <code>testSegment</code>. Predict whether fewer distance calculations will pay for the extra bounds reads.</li>
+<li>Save, press R, then V. Benchmark 8, 56, and 120 worms. Record a row with scene size, hypothesis, kernel p50/p95, host p50, and image-check result for each run. The work view maps the square root of the <strong>fraction of candidates passed to the hit routine</strong> to brightness. It does not count bounding-box tests or floating-point instructions.</li>
+<li id="check-swarm-exit" data-lab-check="swarm-exit"><strong>Front-to-back exit.</strong> Traverse in descending segment ID and exit after the first covering capsule. Which invariant makes that legal? Predict the difference for an empty pixel and for a pixel under ten overlapping capsules. Test each prediction with the heatmap. Keep your change if the benchmark supports it.</li>
+<li>Deliberately shrink the expanded box by a pixel, freeze, and press V. Inspect the first disagreement coordinate. Restore the expansion and re-run <code>--check</code>. This demonstrates the cost of a false negative. False positives cost work while passing exact tests.</li>
+</ol>
+<p id="check-swarm-round" data-lab-check="swarm-round"><strong>A rounding experiment.</strong> The last case in <code>--check</code> tests a point-capsule of radius 1 centered at (−0.5, 0.50001). At pixel center (0.5, 0.5), the squared distance is approximately 1 + 10⁻¹⁰. FP32 rounds that distance to 1. On this device the pixel lands on the included rim, while the CPU’s double-precision test puts it just outside. The check reports any cross-precision disagreement within a narrow, coordinate-scaled silhouette band. Every CUDA variant must still agree on every ID and RGB byte exactly. Change the radius to 0.99 on paper and predict both decisions.</p>
+<p><strong>Retrieval check.</strong> Explain why a partly offscreen capsule can still hit an onscreen pixel. Draw an endpoint at <code>x = -1</code> and a radius of three.</p>
+<h2 id="shared-tile">Lab 3 · Share work across a tile (90–150 minutes)</h2>
+<p>A block covers 16 × 16 pixels. Let <code>P</code> be total pixels, <code>T</code> total blocks, <code>S</code> total capsules and <code>k_t</code> the surviving candidates of tile <code>t</code>. The exhaustive loop examines <code>P × S</code> pixel/segment pairs. A blocked algorithm can spend <code>T × S</code> cheap bounds tests followed by at most <code>sum(pixels_in_tile × k_t)</code> expensive hit calls. Bound both expressions in the worst case, then consider a largely empty screen. <a href="https://developer.nvidia.com/gpugems/gpugems3/part-v-physics-simulation/chapter-32-broad-phase-collision-detection-cuda">NVIDIA GPU Gems chapter on conservative broad-phase culling</a></p>
+<ol>
+<li id="check-swarm-share" data-lab-check="swarm-share">In Student, compute the rectangle containing the <strong>centers</strong> of all pixels in a block. Check the capsule bounds against this rectangle. First have each thread do its own filtering. Validate the output. Which inputs repeat across the 256 lanes?</li>
+<li>Work in batches of 128 segments. Give each of the first 128 lanes one bounds test. Reserve a shared slot by incrementing a shared counter atomically, then write the original segment ID and geometry into that slot. Draw a three-step timeline showing where resets, producer writes and reader completion need a block-wide barrier.</li>
+<li>Remove the early return for edge threads before introducing block barriers. Use an <code>activePixel</code> flag around hit tests and final stores. All threads must participate in every barrier. Make the width 769 and the height 449 to expose partial blocks.</li>
+<li>Press R, V and run <code>--check</code>. If the screen flickers, ask whether the winner is chosen by original ID or by insertion order. If a tail batch fails, check the global <code>id &lt; count</code> predicate. Open the worked <code>tiled</code> kernel in <code>kernels.cu</code> after you have a passing implementation or a specific failure to diagnose.</li>
+<li>Benchmark the original and optimized calculations on the same frozen scene. Find one setting where a large drop in kernel time barely affects live FPS. Explain the next bottleneck using bytes transferred per frame or samples from a profiler. A 768 × 448 RGB image alone is 1,032,192 bytes per readback. <a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html">NVIDIA CUDA Best Practices Guide</a></li>
+</ol>
+<h2 id="worst-case">Challenge · Design a useful failure (half a day)</h2>
+<p>Week 4, Day 4 asks for one crowded case and an explanation of its cost. Keep that result for Day 5’s comparison. Building an alternative spatial index is an optional project.</p>
+<p id="check-new-shape" data-lab-check="new-shape">Find a distribution for which culling pays poorly. Try making every capsule nearly fill the viewport in <code>scene.py</code>, or create many capsules on the same thin path. Compare work heatmaps, kernel times and verification results. Then design an alternate index such as per-tile lists built once for a static scene. Include index construction, transfer costs and the number of frames needed to amortize the index. Show one attractive scene, one hostile scene, and one explanation of why their rankings differ.</p>
+<p><strong>Next-day recall.</strong> Without the code, sketch how adjacent pixels share a candidate list, what makes the list conservative, what defines a tie, and which timing excludes the framebuffer transfer. Check your sketch against <code>kernels.cu</code>. Export a reproducible fixed frame with <code>python swarm.py --snapshot frame.ppm</code>; <code>--width</code>, <code>--height</code>, <code>--worms</code>, <code>--mode</code>, and <code>--view</code> also apply.</p></main></body></html>

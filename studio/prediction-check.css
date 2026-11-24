@@ -1,0 +1,23 @@
+.prediction-group {margin:.65rem 0;border-left:3px solid #849f88;padding:.25rem .7rem;min-width:0;}
+.prediction-group>summary,.prediction-reason>summary {cursor:pointer;font-weight:600;color:#254d40;}
+.prediction-card {margin:.65rem 0;padding:.8rem .9rem;border:1px solid #bcccbc;background:#f8faf4;color:#172d25;border-radius:5px;min-width:0;text-align:left;}
+.prediction-card .prediction-prompt {margin:0 0 .6rem;line-height:1.45;}
+.prediction-card fieldset {min-width:0;margin:0 0 .55rem;padding:0;border:0;}
+.prediction-card .prediction-option {display:flex;align-items:baseline;gap:.5rem;margin:.25rem 0;font-weight:400;}
+.prediction-card .prediction-option input {width:auto;min-width:0;flex:0 0 auto;}
+.prediction-card .prediction-field {display:block;margin:.35rem 0 .55rem;font-size:.93rem;}
+.prediction-card .prediction-field input,.prediction-card .prediction-field textarea {box-sizing:border-box;display:block;margin:.22rem 0 0;padding:.38rem .5rem;font:inherit;color:#19382d;background:white;border:1px solid #829786;border-radius:4px;width:min(100%,26rem);max-width:100%;}
+.prediction-card .prediction-field textarea {width:min(100%,40rem);resize:vertical;}
+.prediction-card button {cursor:pointer;padding:.38rem .65rem;border:1px solid #829786;border-radius:4px;background:#f7faf6;color:#1b372c;font:inherit;}
+.prediction-card .prediction-status:not(:empty) {margin:.5rem 0;line-height:1.45;}
+.prediction-card .prediction-status:empty {display:none;}
+.prediction-card .prediction-reason {margin:.55rem 0 0;padding:.4rem 0 0;border-top:1px solid #c7d3c5;}
+.prediction-card .prediction-reason p {margin:.3rem 0;}
+.prediction-card .prediction-self:not([hidden]) {display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0 0;}
+.prediction-self[hidden] {display:none;}
+.prediction-card :focus-visible,.prediction-group>summary:focus-visible {outline:3px solid #52775d;outline-offset:2px;}
+.prediction-sr {position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;}
+.ink-row-guide {margin:.6rem 0 1rem;}
+.worker-turns {border-collapse:collapse;font-variant-numeric:tabular-nums;margin:.65rem 0;}
+.worker-turns th,.worker-turns td {padding:.23rem .4rem;border:1px solid #c9d4c8;text-align:center;}
+.worker-turns th {text-align:left;}

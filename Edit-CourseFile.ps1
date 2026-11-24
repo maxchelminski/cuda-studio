@@ -1,0 +1,70 @@
+[CmdletBinding(SupportsShouldProcess)]
+param(
+    [Parameter(Mandatory, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Path,
+
+    [ValidateSet('Auto','VSCode','Notepad++','Notepad')]
+    [string]$Editor = $(if ($env:CUDA_COURSE_EDITOR) { $env:CUDA_COURSE_EDITOR } else { 'Auto' })
+)
+$ErrorActionPreference = 'Stop'
+
+function Find-CourseEditor([string]$name) {
+    $program = @{ VSCode='Code.exe'; 'Notepad++'='notepad++.exe'; Notepad='notepad.exe' }[$name]
+    $candidates = @(
+        (Get-Command $program -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source)
+        foreach ($root in @('HKCU:\Software','HKLM:\Software','HKLM:\Software\WOW6432Node')) {
+            $key = Get-Item -LiteralPath "$root\Microsoft\Windows\CurrentVersion\App Paths\$program" -ErrorAction SilentlyContinue
+            if ($key) { $key.GetValue('') }
+        }
+        if ($name -eq 'VSCode') {
+            # A portable installation can expose bin\code.cmd on PATH.
+            $cli = Get-Command code.cmd -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($cli) { Join-Path (Split-Path -Parent (Split-Path -Parent $cli.Source)) $program }
+            Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\Code.exe'
+            Join-Path $env:ProgramFiles 'Microsoft VS Code\Code.exe'
+        }
+        if ($name -eq 'Notepad++') {
+            foreach ($folder in @($env:ProgramFiles,${env:ProgramFiles(x86)},(Join-Path $env:LOCALAPPDATA 'Programs'))) {
+                if ($folder) { Join-Path $folder 'Notepad++\notepad++.exe' }
+            }
+        }
+    )
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate.Trim('"') -PathType Leaf)) {
+            return $candidate.Trim('"')
+        }
+    }
+}
+
+if (-not [IO.Path]::IsPathRooted($Path)) { $Path = Join-Path $PSScriptRoot $Path }
+$file = [IO.Path]::GetFullPath($Path)
+if (Test-Path -LiteralPath $file -PathType Container) { throw "Choose a file inside the folder: $file" }
+if (-not (Test-Path -LiteralPath (Split-Path -Parent $file) -PathType Container)) {
+    throw "Create the containing folder before opening this file: $file"
+}
+
+$choices = if ($Editor -eq 'Auto') { @('VSCode','Notepad++','Notepad') } else { @($Editor) }
+foreach ($choice in $choices) {
+    $program = Find-CourseEditor $choice
+    if ($program) {
+        if ($PSCmdlet.ShouldProcess($file,"Open in $choice ($program)")) {
+            $argument = '"{0}"' -f $file
+            if ($choice -eq 'VSCode') {
+                # Electron's Windows GUI can attach itself to the terminal that launched it.
+                $start = New-Object System.Diagnostics.ProcessStartInfo
+                $start.FileName = $program
+                $start.Arguments = $argument
+                $start.UseShellExecute = $false
+                $start.CreateNoWindow = $true
+                $start.EnvironmentVariables['ELECTRON_NO_ATTACH_CONSOLE'] = '1'
+                $start.EnvironmentVariables.Remove('ELECTRON_RUN_AS_NODE')
+                [System.Diagnostics.Process]::Start($start).Dispose()
+            } else {
+                Start-Process -FilePath $program -ArgumentList $argument
+            }
+        }
+        return
+    }
+}
+throw "Windows could not find the requested editor ($Editor)."

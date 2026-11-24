@@ -1,0 +1,186 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Numeric workbench · Fieldwork</title><link rel="stylesheet" href="../../studio/style.css"><style>main{max-width:900px}main p,main li{max-width:82ch}main h2{font-size:2rem;margin-top:1.4em}main h3{margin-top:1.5em}main img{display:block;max-width:100%;max-height:440px;border-radius:7px}main table{display:block;overflow-x:auto}main li{margin-bottom:.6em}main h1{font-size:clamp(2.8rem,6vw,5rem)}p code,li code{overflow-wrap:anywhere}</style><link rel="stylesheet" href="../../studio/prediction-check.css"><script defer src="../../studio/prediction-check.js"></script><script defer src="../../studio/predictions-labs.js"></script></head><body><header><a class="brand" href="../../index.html"><i class="brandmark"></i>Fieldwork<span>CUDA STUDIO</span></a><nav><a href="../../index.html#labs">Lab shelf</a><a href="../../index.html#course">Course map</a></nav></header><main><p class="kicker">Lab manual</p><h1>Numeric workbench</h1>
+<p>If you arrived here from a lesson, use the section and step numbers it names, then return to the lesson for the remaining work. Each section can also be used on its own. All three datasets ship with the lab.</p>
+<h2 id="run">Run an experiment</h2>
+<p>From the course root on the original Windows machine, the existing CUDA build of PyTorch can compile the kernels with NVRTC. Edit <code>labs/compute/learner.cuh</code>, save, and run the command again. Choose <code>gemm</code>, <code>digits</code>, <code>reduce</code>, <code>spmv</code>, <code>roof</code>, <code>poisson</code>, <code>chain</code>, or <code>all</code>. The shortcut prints real CUDA event timings for fixed test cases. The chain exercise calls cuBLAS through PyTorch and runs before the standalone toolkit is installed.</p>
+<pre><code class="language-powershell">python -B labs/compute/practice_now.py reduce
+python -B labs/compute/practice_now.py chain
+</code></pre>
+<p>For the installed RTX 5070, open <b>Course PowerShell.cmd</b> in the course folder. The build script finds the course toolkit on G:, compiles for the installed GPU and runs the numerical checks. It also links the course runtime libraries beside the executable so you can run the built lab from an ordinary terminal. <a href="https://developer.nvidia.com/cuda/gpus">NVIDIA compute capabilities</a> · <a href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/">Windows installation guide</a></p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File .\Build-Native.ps1
+$build = '.\build\compute'
+$lab = Join-Path $build 'Release\compute_lab.exe'
+&amp; $lab --help
+&amp; $lab gemm 19 33 7
+</code></pre>
+<p>In later sessions set <code>$build</code> and <code>$lab</code> again from the course root. After a kernel edit, repeat the build command and run your experiment. The program reads its two datasets of measurements and its graph directly from the source data directory. If you move the source folder, configure a fresh build directory. All commands below assume the course root and the <code>$lab</code> variable above.</p>
+<h3 id="small-gemm">Read the small product check</h3>
+<p id="check-dot-checks" data-lab-check="dot-checks">Week 2, Day 1 uses a 17-row, 9-column output with five terms per dot product. Before running <code>&amp; .\build\compute\Release\compute_lab.exe gemm 17 9 5</code>, work out how many score entries a complete check should visit. Compare that number with <code>FP64 dot checks</code> and record the fraction. Even a score that loses the nearest-neighbor search belongs in this check. Return to the lesson.</p>
+<h3 id="compare-fp32">Read a custom GEMM beside cuBLAS</h3>
+<p>In Week 2, Day 5, collect the naive, student, tile16 and cuBLAS FP32 rows for the same input. Record each median in milliseconds and its relative L2 error, along with the header’s FP64 check coverage. Keep the TF32-allowed row labeled separately. Return to the lesson for its two square shapes and the digit search.</p>
+<h3 id="fp32-ceiling">Measure the FP32 compute ceiling</h3>
+<p id="check-dense-rate" data-lab-check="dense-rate">For Week 7, Day 1, run the 1024 × 1024 × 1024 GEMM from the guided exercise. Use the reported nominal FLOP count or derive it using two FLOPs per multiply-add. From the cuBLAS FP32 median in milliseconds, compute the achieved rate in FLOP/s. Record your units and return to the Roofline calculation.</p>
+
+<h2 id="timing">The measurement contract</h2>
+<p>Each native variant receives the same inputs and uses the default CUDA stream. One warmup precedes nine timed trials. The median, minimum, and maximum cover work submitted between two CUDA events. Allocation, initialization, host transfers, CPU reference construction, and correctness checks happen outside that interval. The native Poisson interval includes all sweeps. The chain interval includes both multiplies. Tiny trials can be dominated by launch and timing granularity. Large repeated matrices may be cache-resident. Save the shape, GPU, driver API/runtime versions, precision, median, numerical error, and any profiler evidence with each claim. If two sample ranges overlap, vary the run order and repeat your measurement before drawing a performance conclusion. <a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/">CUDA Best Practices Guide</a></p>
+<p><code>learner.cuh</code> has four correct starter kernels. Independent baselines and worked kernels live in <code>solutions.cuh</code>. The launch geometry for your variant lives in <code>gemm.cuh</code> or <code>other_labs.cuh</code>. When changing the mapping from one thread per row to one warp per row, update that grid size too. The shortcut has corresponding fixed launch sizes in <code>practice_now.py</code>. Use the native executable for custom geometry, long benchmarks, library comparisons, and profiling.</p>
+<h2 id="matrix-chain">1. Spend fewer multiplies before touching a kernel</h2>
+<p>Week 2, Day 2. Use the two shapes below to check your operation counts and temporary sizes. Your lesson supplies both native timing commands. Caching a map across 200 batches is a separate experiment.</p>
+<p>An image bank contains an <code>I × 64</code> matrix of ink measurements. Two fixed synthetic linear maps have shapes <code>64 × H</code> and <code>H × O</code>. You need all <code>I × O</code> output values. Both associations use cuBLAS with FP32 arithmetic. Only the intermediate changes.</p>
+<p><strong>Before installing the toolkit</strong>, use <code>python -B labs/compute/practice_now.py chain</code> to run both worksheet shapes on a supported CUDA PyTorch installation. Each trial times two <code>torch.mm</code> calls with preallocated intermediate and output tensors, with TF32 disabled. One warm-up precedes nine CUDA event samples. The shortcut compares every output against a CPU FP64 product outside the measured interval. The host submits both calls, so small cases can include Python dispatch gaps.</p>
+<p id="check-chain-clock" data-lab-check="chain-clock">One RTX 3070 run with PyTorch 2.7.1+cu118 produced the following medians. Predict the faster order before revealing the table, then compare your timings and numerical errors.</p>
+<details><summary>RTX 3070 measurements</summary>
+<table>
+<thead>
+<tr>
+<th>Images × hidden × outputs</th>
+<th>Order</th>
+<th style="text-align:right">Nominal FLOPs</th>
+<th style="text-align:right">Temporary bytes</th>
+<th style="text-align:right">GPU median (ms)</th>
+<th style="text-align:right">Relative L2 error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1797 × 512 × 10</td>
+<td>(AB)C</td>
+<td style="text-align:right">136,169,472</td>
+<td style="text-align:right">3,680,256</td>
+<td style="text-align:right">0.0430</td>
+<td style="text-align:right">2.22e−7</td>
+</tr>
+<tr>
+<td>1797 × 512 × 10</td>
+<td>A(BC)</td>
+<td style="text-align:right">2,955,520</td>
+<td style="text-align:right">2,560</td>
+<td style="text-align:right">0.0154</td>
+<td style="text-align:right">1.79e−7</td>
+</tr>
+<tr>
+<td>8 × 16 × 512</td>
+<td>(AB)C</td>
+<td style="text-align:right">147,456</td>
+<td style="text-align:right">512</td>
+<td style="text-align:right">0.0082</td>
+<td style="text-align:right">9.78e−8</td>
+</tr>
+<tr>
+<td>8 × 16 × 512</td>
+<td>A(BC)</td>
+<td style="text-align:right">1,572,864</td>
+<td style="text-align:right">131,072</td>
+<td style="text-align:right">0.0092</td>
+<td style="text-align:right">1.06e−7</td>
+</tr>
+</tbody>
+</table>
+</details>
+<ol>
+<li id="check-chain-first" data-lab-check="chain-first">Draw the dimensions of both intermediate matrices for <code>I=1797, H=512, O=10</code>. Count nominal FLOPs using two per multiply-add. Decide which way to evaluate the chain.</li>
+<li>Run <code>&amp; $lab chain 1797 512 10</code>. Compare your estimates to the printed temporary size, work, timing, and FP64 reference error.</li>
+<li id="check-chain-second" data-lab-check="chain-second">For the second shape, <code>I=8, H=16, O=512</code>, predict which order uses fewer FLOPs and which uses the smaller temporary. Then run <code>&amp; $lab chain 8 16 512</code>. Compare your two predicted orderings with the printed counts and compare the ratio of the FLOP counts with the ratio of the median times. Where do those ratios differ most?</li>
+<li id="check-chain-cache" data-lab-check="chain-cache">In <code>chain.cuh</code>, locate where the two maps are composed. Suppose those maps stay fixed for 200 arriving image batches. Write the equation for total time with a cached map. Identify which multiplication you would move outside a processing loop, then measure the two phases separately.</li>
+</ol>
+<p id="check-chain-shape" data-lab-check="chain-shape">For an additional challenge, construct a three-matrix shape where the order with the smaller temporary uses more FLOPs. Write down the dimensions and show both comparisons.</p>
+<details><summary>Check the arithmetic for the first shape</summary>
+<p>For 1,797 images, the left association uses 136,169,472 nominal FLOPs and a 3,680,256-byte temporary. The right uses 2,955,520 FLOPs and a 2,560-byte temporary. The arithmetic ratio is about 46 to 1. The table above gives one measured time ratio. Launch costs and GPU utilization depend on the shapes. Reassociation also requires both maps to be linear when applied in sequence. Inserting a nonlinear activation between them would change this problem.</p>
+</details>
+<h2 id="tiled-gemm">2. Reuse one tile across a block</h2>
+<p>Week 2, Day 3. Use this section for the two shared tiles, the barriers and the edge guards. Test the two rectangular inputs in your lesson. The two-output register change belongs to Day 4. The larger scaling runs below are optional.</p>
+<ol>
+<li id="check-tile-share" data-lab-check="tile-share">Run <code>&amp; $lab gemm 19 33 7</code> and <code>&amp; $lab gemm 1024 1024 1024</code>. For a single output cell, write the two array indices loaded at inner-loop step <code>t</code>. Sketch its neighbor to the right and the one below it. Which input can each neighbor share with the first output?</li>
+<li>Open <code>student_gemm</code> in <code>labs/compute/learner.cuh</code>. Keep one output per thread in a 16 × 16 block. Design a way for the block to fetch each needed A and B value once per 16-wide slice of the inner dimension, then reuse those values from shared memory. Decide which thread loads each value and when it is safe to read or replace it. Your kernel must still produce the same output when a dimension is smaller than, or unevenly divisible by, 16.</li>
+<li id="check-tile-edge" data-lab-check="tile-edge">Rebuild and run the two rectangular tests from the lesson. For further edge checks use <code>&amp; $lab gemm 1 1 257</code> and <code>&amp; $lab gemm 73 129 35</code>. Explain what a thread at the partial right edge does when its own output is outside the matrix. Check that every thread in its block can reach every block barrier. Record the numerical check before comparing median GPU times.</li>
+<li>Double one dimension at a time. Then try 2048³ and 4096³ when the smaller runs pass comfortably. A 4096³ run stores three 64 MiB matrices on the GPU and performs about 137 billion nominal FLOPs per multiply. On the display GPU start with the short cases.</li>
+</ol>
+<p id="check-tile-traffic" data-lab-check="tile-traffic">Count the explicitly loaded FP32 values and nominal FLOPs for one full 16 × 16 output tile across 16 inner terms. Exclude output stores. Convert the inputs to bytes and give the ratio in FLOPs per byte. For an access-order extension, label the 32 lanes of a warp in the 16 × 16 block and investigate which B addresses they request. <a href="https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/#shared-memory-in-matrix-multiplication-c-ab">NVIDIA shared-memory GEMM discussion</a></p>
+<details><summary>Get a hint about edge tiles</summary>
+<p>Draw separately the A values a block needs, the B values it needs, and the output cells it will store. A thread at the edge can still be needed for a cooperative load. Decide what value an unavailable input should contribute to a dot product.</p>
+</details>
+<details><summary>Check the input-load calculation</summary>
+<p>For this full inner tile the block loads 256 values from A and 256 from B. Those 512 floats occupy 2,048 bytes. The 256 outputs each accumulate 16 products, for 8,192 nominal FLOPs, or 4 FLOPs per input byte. Caches, sector transactions and output stores can change the traffic measured at the DRAM interface.</p>
+</details>
+<p><strong>Verification experiment.</strong> Small native products check every output with an FP64 dot product. For large products the runner takes reproducible FP64 dot samples and tests three signed projections over every output. For a vector <code>r</code> with entries ±1, check <code>C r ≈ A (B r)</code>. Each side uses matrix–vector multiplies, so all three probes together still take quadratic work on square inputs. The three vectors use a fixed seed. Roundoff and cancellation make this a numerical diagnostic. Open <code>verification.hpp</code> to inspect the row-scaled tolerance.</p>
+<p id="check-matrix-check" data-lab-check="matrix-check">On a 512³ case, introduce a finite error of +10 in just one interior cell of the student output. Predict which check can find it, run the case, then undo the edit and rerun. On a 2×2 paper example, construct two wrong columns whose contributions cancel for <code>r=[1,1]</code> but become visible for <code>r=[1,−1]</code>. Explain why independent projections add information. <a href="https://courses.csail.mit.edu/6.856/17/Notes/n11-fingerprint.html">MIT · verifying a matrix product</a></p>
+<h2 id="digit-retrieval">3. Compare FP32 and TF32-allowed digit retrieval</h2>
+<p>For Week 2, Day 1, read the first item to identify the gallery, queries and score matrix. Then return to the digit explorer and the small score check. Week 7, Day 2 uses the precision comparison and the top-two score gap.</p>
+<ol>
+<li>Run <code>&amp; $lab digits 1797</code>. The gallery takes the first 1,437 images. The other 360 are queries. Each 64-feature image is normalized to unit length. One rectangular GEMM gives every query/gallery cosine similarity. The gallery has no query self-match. This fixed split is for numerical experiments using a subset of the UCI data.</li>
+<li id="check-numeric-precision" data-lab-check="numeric-precision">For the FP32 and TF32-allowed cuBLAS rows, record each median, relative L2 error, maximum absolute error, and number of correct nearest-image labels. Did the score errors change? Did the number of correct labels change? Equal counts alone cannot tell you whether both methods chose the same winning image for every query.</li>
+<li id="check-digit-margin" data-lab-check="digit-margin">In <code>gemm.cuh</code>, collect the largest and second-largest score in each row. Predict which winners are sensitive to rounding. Record the smallest gap and whether a winner actually flips. Increase K using the synthetic GEMM command to investigate another shape.</li>
+<li>Use Nsight Compute on a larger GEMM to check which instructions run in each library mode. The TF32 flag permits Tensor Core execution. Kernel choice depends on shape and library. Record a profiler observation before claiming Tensor Core utilization. <a href="https://docs.nvidia.com/cuda/cublas/#cublascomputetype-t">cuBLAS compute types</a> · <a href="https://docs.nvidia.com/nsight-compute/">Nsight Compute</a></li>
+</ol>
+<p id="check-digit-budget" data-lab-check="digit-budget">Explain how a small gap between the two highest scores could let rounding change a predicted digit. For a larger design exercise, make a memory budget for 100,000 queries and 100,000 gallery vectors. Show how many temporary scores and candidate neighbors your design stores while retaining the top k per query.</p>
+<details><summary>Compare with the digit reference</summary>
+<p>For the bundled split, a CPU FP64 calculation yields 343 correct digit labels among the 360 queries. The scores being compared are cosine similarities. Numerical correctness and recognition accuracy answer different questions.</p>
+</details>
+<h2 id="ink-reduction">4. Count real ink with fewer atomics</h2>
+<p>In Week 3, Day 4, compare the integer total and the number of global updates. Your lesson lists the inputs for the tail-block check. The shuffle and byte-storage variants below are optional follow-ups.</p>
+<ol>
+<li>Run <code>&amp; $lab reduce 115008</code>. Each of the 1,797 images contributes 64 cells, and each cell counts black pixels in a 4 × 4 patch. Record the <code>Exact ink sum</code> printed by the CPU reference. Larger runs repeat these same cell measurements.</li>
+<li id="check-ink-combine" data-lab-check="ink-combine">Edit <code>student_reduce</code> in <code>labs/compute/learner.cuh</code>. The starter updates the same global total once for every input cell. Make the 256 threads in each block combine their cell values and contribute just one update per block. Decide how to exchange partial sums and which thread contributes the combined sum. The last block may contain fewer than 256 cells. The integer total must match the CPU reference exactly.</li>
+<li id="check-ink-atomics" data-lab-check="ink-atomics">Before running length 257, predict how many global atomic updates the starter and your design would issue at the source level. Test lengths 1, 255, 256, 257, 261, 115008, and 4194304. Record whether the exact sums pass and compare median times and logical input GB/s at the largest size. A claim about actual hardware requests needs profiler or generated-code evidence.</li>
+<li id="check-ink-warp" data-lab-check="ink-warp">As an optional extension, let the final warp exchange its partial sums with shuffle instructions. Explain which lanes take part and why the values in positions past the end of the data cannot alter the total.</li>
+</ol>
+<p>For a second extension, begin with four bytes per input cell and compare a one-byte input representation. Record the storage change, logical GB/s and time for each implementation. To investigate a limit, identify which part you can time or profile separately.</p>
+<details><summary>Check the full dataset and the 257-cell prediction</summary>
+<p>The 115,008 cells sum to 561,718. At length 257 the starter issues 257 source-level atomic updates. With one update per block of 256 threads, the first block and the partial final block each contribute once.</p>
+</details>
+<p id="check-ink-tail" data-lab-check="ink-tail"><strong>Test the boundary check.</strong> Before editing a working kernel, compare the reference sums for lengths 256, 257 and 261. If a bug dropped every cell in an incomplete final block, which lengths would expose it? Temporarily introduce that mistake in <code>student_reduce</code>, rebuild, run the three lengths and compare each outcome with your prediction. Restore the working version, rebuild and rerun before timing.</p>
+<details><summary>Explain the boundary results after testing</summary>
+<p>The first 256 cells sum to 1,218. The next five values are <code>[0,0,0,1,11]</code>. At 257, dropping the last block still gives the correct sum by coincidence. At 261 the correct sum is 1,230, so the same mistake now fails.</p>
+</details>
+<h2 id="sparse-matrix">5. Assign work to an irregular sparse matrix</h2>
+<p>Week 3 visits this worksheet three times. On Day 1, finish item 1 with the club graph. On Day 2, use items 2 and 3 for the roof matrix and repeated inputs. Day 5 returns to pricing the shared setup. Item 4 describes an optional four-lane mapping.</p>
+<ol>
+<li id="check-csr-first" data-lab-check="csr-first">Open <code>labs/compute/data/karate.mtx</code>. Vertex IDs in the file start at 1, and each friendship is listed once. Count the entries where 1 occurs at either end. In the expanded CSR matrix on the GPU, that person is row 0. Predict its first two row offsets and the value of <code>y[0]</code> when every input is one. Run <code>&amp; $lab spmv labs/compute/data/karate.mtx 1</code> and compare the printed <code>y[0]</code> with your count.</li>
+<li>Run <code>&amp; $lab spmv labs/compute/data/bcsstk14.mtx 1</code>. An applied displacement vector multiplied by this structural stiffness matrix produces generalized forces. Contrast its row-length distribution with the friendship graph. The lab's all-ones vector is an arithmetic probe.</li>
+<li id="check-csr-lanes" data-lab-check="csr-lanes">With 32 lanes assigned to one row, short rows leave some lanes with no matrix element to read. Use the printed row-length ranges to predict which matrix will show more of this idle work. On both files rerun the command with its final argument set to 1, 16 and 256. Compare scalar and warp-per-row median times for each setting. Each copy adds one independent input vector while reusing the same matrix.</li>
+<li id="check-csr-four" data-lab-check="csr-four">Optional after the eight-lane lesson exercise. In <code>student_spmv</code>, assign a group of four lanes to each output row instead. Decide how the four lanes divide the row, combine their partial sums and select a single writer. Derive a matching student grid for the 128-thread block in <code>run_spmv</code> in <code>other_labs.cuh</code>. Include the last partial group of rows and multiple input vectors in your correctness checks. Compare the scalar, student and full-warp medians on both datasets.</li>
+</ol>
+<p id="check-csr-density" data-lab-check="csr-density">Use the roof matrix dimensions and expanded <code>nnz</code> from the command output to calculate what fraction of a dense array would hold zeros. Also inspect the row with the largest reported error relative to its tolerance. Large stiffness coefficients can cancel inside a row. <a href="https://math.nist.gov/MatrixMarket/data/Harwell-Boeing/bcsstruc2/bcsstk14.html">Original NIST matrix record</a> · <a href="https://math.nist.gov/MatrixMarket/formats.html">Matrix Market coordinate format</a></p>
+<details><summary>Compare your counts with the bundled files</summary>
+<p>For the club graph, vertex 1 has degree 16. The first two CSR offsets are 0 and 16. There are 34 rows and 156 expanded entries. Row lengths have minimum 1, median 3 and maximum 17. For the roof matrix there are 1,806 rows and 63,454 expanded entries, with row lengths of 1, 37 and 48 at the same three summary points.</p>
+</details>
+<p>The checker also compares each output to an independent FP64 dot product with an allowance scaled to that row's sum of absolute products, FP32 precision, and number of additions. It reports the row and RHS with the largest error as a fraction of this allowance. A value above one fails. Inspecting one row at a time keeps large stiffness coefficients in other rows from concealing a wrong small output.</p>
+<h2 id="pressure-target">6. Make a pressure solve reach a physical target</h2>
+<p>Week 5, Day 1 uses the first update and the zero border. Day 2 follows the halo loads in item 3. Day 3 compares time to a common residual in item 4. Use the shapes, commands and stopping condition in the lesson you have open.</p>
+<ol>
+<li id="check-jacobi-zero" data-lab-check="jacobi-zero">Begin with pressure zero at every cell, including the fixed boundary. At an interior cell with source value <code>b</code>, the equation for unit spacing is <code>4p - west - east - north - south = b</code>. Using only pressures from the starting grid, derive the first Jacobi update at that cell as an expression in <code>b</code>. What happens at a positive source and at a negative one? Run <code>&amp; $lab poisson 65 49 1</code> and find the fixed-sweep numerical check.</li>
+<li>Run 5, 20, 80, and 320 sweeps with the same grid. Record time and the relative residual <code>||b - Ap||₂ / ||b||₂</code>. The separate FP64 check measures whether your implementation matches <strong>the requested number of Jacobi updates</strong>. A correct implementation can still have a large residual.</li>
+<li id="check-jacobi-edge" data-lab-check="jacobi-edge">Edit <code>student_poisson</code> so a block reuses pressure values in shared memory. A halo is the strip of neighboring cells outside the block’s output tile that the stencil reads. Sketch the tile and its halo. Decide which threads fetch each value, including at a partial image edge, and when they may begin calculating outputs. Rebuild and compare against the fixed-sweep reference on a non-square grid with both odd and even sweep counts.</li>
+<li id="check-numeric-pressure" data-lab-check="numeric-pressure">Choose a common residual target, then compare two approaches on <strong>time to target</strong>. For a deeper extension, implement red-black Gauss–Seidel as two global launches per sweep. Use the residual for comparisons between methods and keep the fixed-sweep FP64 Jacobi checker for the equivalent Jacobi kernels.</li>
+</ol>
+<pre><code class="language-powershell">&amp; $lab poisson 257 193 80 &quot;$build\pressure.pgm&quot;
+</code></pre>
+<p>The optional PGM is an 8-bit image of the <strong>student kernel's signed pressure</strong>. Mid-gray means zero. Each exported field scales to its own peak, printed in the console. Quantitative comparisons need residuals and a fixed color scale. This experiment isolates the pressure equation used inside projection-based fluid solvers. <a href="https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-38-fast-fluid-dynamics-simulation-gpu">GPU Gems, Fast Fluid Dynamics Simulation on the GPU</a></p>
+<h2 id="benchmark-diary">Benchmark diary</h2>
+<p>Both runners print the nine CUDA event intervals in acquisition order on the <code>samples_ms</code> line. Save the raw values with the variant name and workload. Sort a copy and check that the fifth value agrees with the reported median to its displayed precision. This command saves the full native run in your G build folder.</p>
+<pre><code class="language-powershell">&amp; $lab chain 1797 512 10 | Tee-Object &quot;$build\chain-first-run.txt&quot;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Shape / data</th>
+<th>Hypothesis</th>
+<th>Edit</th>
+<th style="text-align:right">Baseline ms</th>
+<th style="text-align:right">Student ms</th>
+<th>Error or exact sum</th>
+<th>Counter or explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p id="check-new-shape" data-lab-check="new-shape">At the next session, reproduce the edge case that caught your last mistake. At the end of the week, run an unfamiliar shape and predict the winner in writing. Your explanation should account for one result where the more elaborate implementation loses.</p></main></body></html>
